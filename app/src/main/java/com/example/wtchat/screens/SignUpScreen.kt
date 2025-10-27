@@ -39,9 +39,17 @@ import com.example.wtchat.viewmodels.AuthViewModel
 import com.example.wtchat.Routes
 
 @Composable
-fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
+fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
     var errorMessage = remember {
+        mutableStateOf("")
+    }
+
+    var crm = remember {
+        mutableStateOf("")
+    }
+
+    var nome = remember {
         mutableStateOf("")
     }
 
@@ -85,9 +93,10 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
             verticalArrangement = Arrangement.Center
         ) {
 
+
             // Title
             Text(
-                text = "Login",
+                text = "Criar Conta",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -96,6 +105,44 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
             Spacer(modifier = Modifier.height(50.dp))
 
             // Subtitle
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                value = crm.value,
+                onValueChange = { novoValor ->
+                    crm.value = novoValor
+                    errorMessage.value = "" // Clear error message on input change
+                },
+                placeholder = {
+                    Text(text = "Seu CRM")
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
+                    unfocusedIndicatorColor = Color.Transparent // Remove bottom border when unfocused
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                value = nome.value,
+                onValueChange = { novoValor ->
+                    nome.value = novoValor
+                    errorMessage.value = "" // Clear error message on input change
+                },
+                placeholder = {
+                    Text(text = "Seu nome")
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
+                    unfocusedIndicatorColor = Color.Transparent // Remove bottom border when unfocused
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(25.dp))
+
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
@@ -118,15 +165,15 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                visualTransformation = PasswordVisualTransformation(),
                 value = senha.value,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
-                ),
+                visualTransformation = PasswordVisualTransformation(),
                 onValueChange = { novoValor ->
                     senha.value = novoValor
                     errorMessage.value = "" // Clear error message on input change
                 },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                ),
                 placeholder = {
                     Text(text = "Sua senha")
                 },
@@ -149,17 +196,17 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
             // Login Button
             Button(
                 onClick = {
-                    if (email.value.isBlank() || senha.value.isBlank()) {
+                    if (email.value.isBlank() || senha.value.isBlank() || nome.value.isBlank() || crm.value.isBlank()) {
                         errorMessage.value = "Por favor, preencha todos os campos." // Set error message
                     } else {
-                        authViewModel.login(email.value, senha.value)
+                        authViewModel.signup(crm.value, nome.value, email.value, senha.value)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 enabled = !loading.value
             ) {
-                Text(text = "Entrar", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
+                Text(text = "Criar conta", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -167,12 +214,12 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
             // Registration Button
             TextButton(
                 onClick = {
-                    navController.navigate(Routes.SignUpScreen)
+                    navController.navigate(Routes.LoginScreen)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !loading.value
             ) {
-                Text(text = "Não tem uma conta? Registre-se", color = MaterialTheme.colorScheme.onBackground)
+                Text(text = "Já tem uma conta? Faça login", color = MaterialTheme.colorScheme.onBackground)
             }
         }
     }
