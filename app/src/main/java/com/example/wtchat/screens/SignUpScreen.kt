@@ -107,7 +107,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
             // Subtitle
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(20.dp),
                 value = crm.value,
                 onValueChange = { novoValor ->
                     crm.value = novoValor
@@ -126,7 +126,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(20.dp),
                 value = nome.value,
                 onValueChange = { novoValor ->
                     nome.value = novoValor
@@ -145,7 +145,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(20.dp),
                 value = email.value,
                 onValueChange = { novoValor ->
                     email.value = novoValor
@@ -167,7 +167,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(20.dp),
                 value = senha.value,
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = { novoValor ->
