@@ -151,6 +151,9 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                     email.value = novoValor
                     errorMessage.value = "" // Clear error message on input change
                 },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email
+                ),
                 placeholder = {
                     Text(text = "Seu email")
                 },
