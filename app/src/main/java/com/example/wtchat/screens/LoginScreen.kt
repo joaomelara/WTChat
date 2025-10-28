@@ -2,8 +2,10 @@ package com.example.wtchat.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -127,12 +129,12 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            HorizontalDivider(
-                color = WTCOrange,
-                thickness = 4.dp,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .padding(horizontal = 16.dp)
+                    .height(4.dp)
+                    .background(WTCOrange, shape = RoundedCornerShape(50.dp))
             )
 
             Spacer(modifier = Modifier.height(50.dp))
