@@ -20,7 +20,7 @@ fun LoginScreen(navController: NavController){
     ){
         Text(text = "LoginScreen")
         Button(onClick = {
-            navController.navigate(Routes.ConversationHubScreen+"/john")
+            navController.navigate(Routes.ConversationHubScreen)
         }) {
             Text(text = "GOTO Conversations")
 
