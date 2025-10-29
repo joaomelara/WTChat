@@ -9,8 +9,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -38,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
@@ -47,18 +44,7 @@ import com.example.wtchat.Routes
 @Composable
 fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewModel){
 
-    var context = LocalContext.current
 
-    val authState = authViewModel.authState.observeAsState()
-
-    LaunchedEffect(authState.value) {
-        when(authState.value){
-            is AuthState.Unauthenticated -> navController.navigate(Routes.LoginScreen){
-                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
-            }
-            else -> Unit
-        }
-    }
     
     
      val navItemList = listOf(
@@ -79,7 +65,9 @@ fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewM
         ) {
             ContentScreen(
                 modifier = Modifier.fillMaxSize(),
-                selectedIndex = selectedIndex
+                selectedIndex = selectedIndex,
+                navController,
+                authViewModel
             )
 
             FloatingBottomBar(
@@ -93,6 +81,26 @@ fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewM
         }
     }
 }
+@Composable
+fun ContentScreen(
+    modifier: Modifier = Modifier,
+    selectedIndex: Int,
+    navController: NavController ,
+    authViewModel: AuthViewModel
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        when (selectedIndex) {
+            0 -> HubPage(navController, authViewModel)
+            1 -> ProfilePage(navController, authViewModel)
+            2 -> SettingsPage(navController, authViewModel)
+        }
+    }
+}
+
+data class NavItem(
+    val label: String,
+    val icon: ImageVector
+)
 
 @Composable
 fun FloatingBottomBar(
@@ -127,43 +135,6 @@ fun FloatingBottomBar(
                     )
                 }
             }
-    
-
-    Column(
-        Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "Conversation Screen and nameTest is gaming")
-        Button(
-            onClick = {
-                authViewModel.signout()
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-            enabled = authState != AuthState.Loading
-        ) {
-            Text(text = "Sair", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
         }
     }
 }
-
-
-@Composable
-fun ContentScreen(
-    modifier: Modifier = Modifier,
-    selectedIndex: Int
-) {
-    Box(modifier = modifier.fillMaxSize()) {
-        when (selectedIndex) {
-            0 -> HubPage()
-            1 -> ProfilePage()
-            2 -> SettingsPage()
-        }
-    }
-}
-
-data class NavItem(
-    val label: String,
-    val icon: ImageVector
-)

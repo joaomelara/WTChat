@@ -14,7 +14,7 @@ import com.example.wtchat.viewmodels.AuthViewModel
 @Composable
 fun MyAppNavigation(authViewModel: AuthViewModel){
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Routes.LoadingScreen, builder = {
+    NavHost(navController = navController, startDestination = Routes.LoadingScreen) {
         composable(Routes.LoadingScreen) {
             LoadingScreen(navController, authViewModel)
         }
