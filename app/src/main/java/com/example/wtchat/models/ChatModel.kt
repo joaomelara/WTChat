@@ -1,6 +1,7 @@
 package com.example.wtchat.models
 
 data class ChatModel(
+    val uid: String = "",
     val titulo: String = "",
     val descricao: String = "",
     val tipo: String = "",

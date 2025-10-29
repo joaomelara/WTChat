@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.wtchat.screens.ConversationHubScreen
+import com.example.wtchat.screens.ConversationScreen
 import com.example.wtchat.screens.LoadingScreen
 import com.example.wtchat.screens.LoginScreen
 import com.example.wtchat.screens.SignUpScreen
@@ -30,5 +31,11 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
         composable(Routes.ConversationHubScreen){
             ConversationHubScreen(navController, authViewModel)
         }
+
+        composable(Routes.ConversationScreen+"/{chatId}"){
+            val chatId = it.arguments?.getString("chatId")
+            ConversationScreen(navController, authViewModel, chatId?:"Error")
+        }
+
     })
 }

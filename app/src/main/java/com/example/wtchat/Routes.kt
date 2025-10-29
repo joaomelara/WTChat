@@ -5,5 +5,6 @@ object Routes {
     var ConversationHubScreen = "Conversation_Hub"
     var SignUpScreen = "SignUp_Screen"
     var LoadingScreen = "Loading_Screen"
+    var ConversationScreen = "Conversation_Screen"
 
 }
