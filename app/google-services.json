@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "548920054261",
+    "project_id": "wtchat-70815",
+    "storage_bucket": "wtchat-70815.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:548920054261:android:a849b4198038608123d0bc",
+        "android_client_info": {
+          "package_name": "com.example.wtchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcm9jeDCwlH1yh0kLjhX61F9H-xrb_MEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
