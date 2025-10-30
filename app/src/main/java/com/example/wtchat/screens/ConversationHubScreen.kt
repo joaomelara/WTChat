@@ -150,7 +150,7 @@ fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewM
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ConversationScreen+"/"+item.uid)
+                                navController.navigate(Routes.ConversationScreen+"/"+item.uid+"/"+item.titulo)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 
