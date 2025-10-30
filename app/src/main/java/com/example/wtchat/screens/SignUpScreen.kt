@@ -123,7 +123,6 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Title
             Text(
                 text = "Criar conta",
                 style = MaterialTheme.typography.titleMedium,
@@ -143,7 +142,6 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            // Subtitle
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -170,8 +168,10 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 shape = RoundedCornerShape(20.dp),
                 value = nome.value,
                 onValueChange = { novoValor ->
-                    nome.value = novoValor
-                    errorMessage.value = "" // Clear error message on input change
+                    if (novoValor.length <= 25) {
+                        nome.value = novoValor
+                        errorMessage.value = ""
+                    }
                 },
                 placeholder = {
                     Text(text = "Seu nome")
@@ -243,7 +243,6 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(55.dp))
 
-            // Login Button
             Button(
                 onClick = {
                     if (email.value.isBlank() || senha.value.isBlank() || nome.value.isBlank() || crm.value.isBlank()) {
@@ -261,7 +260,6 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Registration Button
             TextButton(
                 onClick = {
                     navController.navigate(Routes.LoginScreen)
