@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +33,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -57,19 +59,22 @@ import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Date
 
 @Composable
-fun ConversationScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String, chatNome: String){
+fun ConversationScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String, chatNome: String, userNome: String){
 
     var context = LocalContext.current
 
+    val userId = FirebaseAuth.getInstance().currentUser?.uid!!
+
     val authState = authViewModel.authState.observeAsState()
 
-    var novaMensagem = remember {
-        mutableStateOf("")
-    }
+    var listState = rememberLazyListState()
 
-    var participantes = remember {
+    var novaMensagem = remember {
         mutableStateOf("")
     }
 
@@ -97,12 +102,19 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
         }
     }
 
+    LaunchedEffect(mensagens.value) {
+        if(mensagens.value.isNotEmpty()){
+            listState.animateScrollToItem(mensagens.value.lastIndex)
+        }
+    }
+
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (messages, chatBox, headerBox) = createRefs()
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(WTCGrey)
                 .height(60.dp)
                 .padding(horizontal = 20.dp)
                 .constrainAs(headerBox) {
@@ -130,7 +142,8 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     height = Dimension.fillToConstraints
-                }
+                },
+            state = listState
         ) {
             items(mensagens.value) { item ->
                 ChatItem(item)
@@ -171,7 +184,13 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
             IconButton(
                 modifier = Modifier.background(WTCBlue, RoundedCornerShape(100.dp)),
                 onClick = {
+                    val messageLocalDateTime = LocalDateTime.now()
+                    val messageDate = Date.from(messageLocalDateTime.atZone(ZoneId.systemDefault()).toInstant())
 
+                    val message = MessageModel(userId, userNome, novaMensagem.value, messageDate)
+
+                    Firebase.firestore.collection("chats").document(chatId).collection("messages").add(message)
+                    novaMensagem.value = ""
                 },
             ) {
                 Icon(
@@ -184,16 +203,19 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
 
 @Composable
 fun ChatItem(item: MessageModel) {
+
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+
     Spacer(modifier = Modifier.size(10.dp))
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) Alignment.End else Alignment.Start
+        horizontalAlignment = if (item.autor == userId) Alignment.End else Alignment.Start
     ) {
         Text(
-            modifier = Modifier.padding(start = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) 0.dp else 5.dp,
-                end = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) 5.dp else 0.dp),
+            modifier = Modifier.padding(start = if (item.autor == userId) 0.dp else 5.dp,
+                end = if (item.autor == userId) 5.dp else 0.dp),
             style = MaterialTheme.typography.bodySmall,
-            text = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) "Você" else item.nome
+            text = if (item.autor == userId) "Você" else item.nome
         )
         Box(
             modifier = Modifier
@@ -201,8 +223,8 @@ fun ChatItem(item: MessageModel) {
                     RoundedCornerShape(
                         topStart = 48f,
                         topEnd = 48f,
-                        bottomStart = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) 48f else 0f,
-                        bottomEnd = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) 0f else 48f
+                        bottomStart = if (item.autor == userId) 48f else 0f,
+                        bottomEnd = if (item.autor == userId) 0f else 48f
                     )
                 )
                 .background(WTCGrey)

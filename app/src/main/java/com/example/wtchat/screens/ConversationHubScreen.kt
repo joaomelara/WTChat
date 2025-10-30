@@ -70,6 +70,8 @@ fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewM
         mutableStateOf<List<ChatModel>>(emptyList())
     }
 
+    var userNome = ""
+
     var context = LocalContext.current
 
     val authState = authViewModel.authState.observeAsState()
@@ -89,6 +91,14 @@ fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewM
                             conversas.value = results
                         }
                 }
+
+                Firebase.firestore.collection("users")
+                    .document(FirebaseAuth.getInstance().currentUser?.uid!!).get().addOnCompleteListener {
+                        if(it.isSuccessful) {
+                            userNome = it.result.getString("nome")!!
+                        }
+                }
+
             }
             else -> Unit
         }
@@ -150,7 +160,7 @@ fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewM
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ConversationScreen+"/"+item.uid+"/"+item.titulo)
+                                navController.navigate(Routes.ConversationScreen+"/"+item.uid+"/"+item.titulo+"/"+userNome)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 
