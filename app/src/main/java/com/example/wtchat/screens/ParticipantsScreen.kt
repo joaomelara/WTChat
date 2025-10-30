@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -116,7 +117,7 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                                 .size(50.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(imageVector = Icons.Default.Person, contentDescription = "User Icon", modifier =  Modifier.size(30.dp), tint = WTCBackground)
+                            Icon(imageVector = Icons.Rounded.Person, contentDescription = "User Icon", modifier =  Modifier.size(30.dp), tint = WTCBackground)
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))

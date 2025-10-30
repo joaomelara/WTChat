@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -92,7 +93,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
                     .size(90.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = Icons.Default.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(60.dp), tint = WTCBackground)
+                Icon(imageVector = Icons.Rounded.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(60.dp), tint = WTCBackground)
             }
             Spacer(modifier = Modifier.height(25.dp))
             Text(

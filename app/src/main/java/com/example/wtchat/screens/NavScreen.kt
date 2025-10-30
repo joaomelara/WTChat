@@ -24,6 +24,9 @@ import com.example.wtchat.ui.theme.WTCOnGrey
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -51,9 +54,9 @@ fun NavScreen(navController: NavController, authViewModel: AuthViewModel){
     }
 
     val navItemList = listOf(
-        NavItem("Home", Icons.Default.Home),
-        NavItem("Profile", Icons.Default.Person),
-        NavItem("Settings", Icons.Default.Settings)
+        NavItem("Home", Icons.Rounded.Home),
+        NavItem("Profile", Icons.Rounded.Person),
+        NavItem("Settings", Icons.Rounded.Settings)
     )
 
     var selectedIndex by remember { mutableStateOf(0) }

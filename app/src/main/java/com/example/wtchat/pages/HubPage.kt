@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -168,7 +169,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                                 .size(65.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(imageVector = Icons.Default.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(40.dp), tint = WTCBackground)
+                            Icon(imageVector = Icons.Rounded.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(40.dp), tint = WTCBackground)
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))

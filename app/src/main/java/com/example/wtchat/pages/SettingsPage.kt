@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -94,7 +96,7 @@ fun SettingsPage(navController: NavController ,authViewModel: AuthViewModel){
                     )
 
                     Icon(
-                        Icons.Default.KeyboardArrowRight,
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                         "Right Arrow",
                         tint = WTCOnGreyLight
                     )
@@ -119,7 +121,7 @@ fun SettingsPage(navController: NavController ,authViewModel: AuthViewModel){
                     )
 
                     Icon(
-                        Icons.Default.KeyboardArrowRight,
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                         "Right Arrow",
                         tint = WTCOnGreyLight
                     )
@@ -144,7 +146,7 @@ fun SettingsPage(navController: NavController ,authViewModel: AuthViewModel){
                     )
 
                     Icon(
-                        Icons.Default.KeyboardArrowRight,
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                         "Right Arrow",
                         tint = WTCOnGreyLight
                     )
@@ -169,7 +171,7 @@ fun SettingsPage(navController: NavController ,authViewModel: AuthViewModel){
                     )
 
                     Icon(
-                        Icons.Default.KeyboardArrowRight,
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                         "Right Arrow",
                         tint = WTCOnGreyLight
                     )
