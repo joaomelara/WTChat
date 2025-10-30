@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -87,22 +88,24 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
             ) {
                 items(mensagens.value) {item ->
                     Spacer(modifier = Modifier.size(30.dp))
-                    Column(
+                    Box(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = if(item.autor == FirebaseAuth.getInstance().currentUser?.uid) {
-                            Alignment.End
-                        } else {
-                            Alignment.Start
-                        }
+                        contentAlignment = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) Alignment.CenterEnd else Alignment.CenterStart
                     ) {
                         Box(
-                            modifier = Modifier.background(WTCGrey, RoundedCornerShape(50.dp))
+                            modifier = Modifier
+                                .clip(
+                                    RoundedCornerShape(
+                                        topStart = 48f,
+                                        topEnd = 48f,
+                                        bottomStart = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) 48f else 0f,
+                                        bottomEnd = if (item.autor == FirebaseAuth.getInstance().currentUser?.uid) 0f else 48f
+                                    )
+                                )
+                                .background(WTCGrey)
+                                .padding(16.dp)
                         ) {
-                            Text(
-                                modifier = Modifier.padding(vertical = 2.dp, horizontal = 10.dp),
-                                style = MaterialTheme.typography.bodyMedium,
-                                text = item.texto,
-                            )
+                            Text(text = item.texto)
                         }
                     }
                 }
