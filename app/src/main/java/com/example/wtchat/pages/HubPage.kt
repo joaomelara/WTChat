@@ -149,9 +149,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
 
                 )
 
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Text(text = "Filtros")
+            Spacer(modifier = Modifier.height(15.dp))
 
             LazyColumn {
                 items(conversas.value) { item ->
