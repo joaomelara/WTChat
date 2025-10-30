@@ -1,9 +1,25 @@
 package com.example.wtchat.screens
 
-import android.media.Image
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.wtchat.pages.HubPage
+import com.example.wtchat.pages.ProfilePage
+import com.example.wtchat.pages.SettingsPage
+import com.example.wtchat.ui.theme.WTCBackground
+import com.example.wtchat.ui.theme.WTCBlue
+import com.example.wtchat.ui.theme.WTCGrey
+import com.example.wtchat.ui.theme.WTCNavIcons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,7 +59,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.wtchat.R
 import com.example.wtchat.viewmodels.AuthState
@@ -62,129 +77,97 @@ import com.google.firebase.firestore.toObject
 @Composable
 fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewModel){
 
-    var pesquisa = remember {
-        mutableStateOf("")
-    }
 
-    var conversas = remember {
-        mutableStateOf<List<ChatModel>>(emptyList())
-    }
+    
+    
+     val navItemList = listOf(
+        NavItem("Home", Icons.Default.Home),
+        NavItem("Profile", Icons.Default.Person),
+        NavItem("Settings", Icons.Default.Settings)
+    )
 
-    var userNome = ""
+    var selectedIndex by remember { mutableStateOf(0) }
 
-    var context = LocalContext.current
-
-    val authState = authViewModel.authState.observeAsState()
-
-    LaunchedEffect(authState.value) {
-        when(authState.value){
-            is AuthState.Unauthenticated -> navController.navigate(Routes.LoginScreen){
-                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
-            }
-            is AuthState.Authenticated -> {
-                Firebase.firestore.collection("chats").whereArrayContains("participantes",
-                    FirebaseAuth.getInstance().currentUser?.uid!!).get().addOnCompleteListener {
-                        if(it.isSuccessful) {
-                            val results = it.result.documents.mapNotNull { doc ->
-                                doc.toObject(ChatModel::class.java)
-                            }
-                            conversas.value = results
-                        }
-                }
-
-                Firebase.firestore.collection("users")
-                    .document(FirebaseAuth.getInstance().currentUser?.uid!!).get().addOnCompleteListener {
-                        if(it.isSuccessful) {
-                            userNome = it.result.getString("nome")!!
-                        }
-                }
-
-            }
-            else -> Unit
-        }
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = WTCBackground
-    ) {
-        Column(
+    Scaffold(
+        containerColor = WTCBackground
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(paddingValues)
         ) {
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Title
-            Text(
-                text = "Conversas",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = WTCBlue
+            ContentScreen(
+                modifier = Modifier.fillMaxSize(),
+                selectedIndex = selectedIndex,
+                navController,
+                authViewModel
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                value = pesquisa.value,
-                onValueChange = { novoValor ->
-                    pesquisa.value = novoValor
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email
-                ),
-                placeholder = {
-                    Text(text = "Pesquisar")
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
-                    unfocusedContainerColor = WTCGrey,
-                    focusedContainerColor = WTCGrey
-                ),
-
+            FloatingBottomBar(
+                items = navItemList,
+                selectedIndex = selectedIndex,
+                onItemSelected = { selectedIndex = it },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp)
             )
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            Text(text = "Filtros")
-
-            LazyColumn {
-                items(conversas.value) { item ->
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .clickable(onClick = {
-                                navController.navigate(Routes.ConversationScreen+"/"+item.uid+"/"+item.titulo+"/"+userNome)
-                            }),
-                        verticalAlignment = Alignment.CenterVertically,
-
-                    ) {
-                        Box(
-                            modifier = Modifier.background(WTCBlue, RoundedCornerShape(200.dp))
-                                .size(65.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(imageVector = Icons.Default.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(40.dp), tint = WTCBackground)
-                        }
-
-                        Spacer(modifier = Modifier.size(20.dp))
-
-                        Text(
-                            style = MaterialTheme.typography.titleMedium,
-                            text = item.titulo
-                        )
-
-                    }
-                }
-            }
-
         }
     }
+}
+@Composable
+fun ContentScreen(
+    modifier: Modifier = Modifier,
+    selectedIndex: Int,
+    navController: NavController ,
+    authViewModel: AuthViewModel
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        when (selectedIndex) {
+            0 -> HubPage(navController, authViewModel)
+            1 -> ProfilePage(navController, authViewModel)
+            2 -> SettingsPage(navController, authViewModel)
+        }
+    }
+}
 
+data class NavItem(
+    val label: String,
+    val icon: ImageVector
+)
+
+@Composable
+fun FloatingBottomBar(
+    items: List<NavItem>,
+    selectedIndex: Int,
+    onItemSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .width(220.dp)
+            .height(70.dp)
+            .clip(RoundedCornerShape(40.dp))
+            .background(WTCGrey)
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEachIndexed { index, item ->
+                IconButton(onClick = { onItemSelected(index) }) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.label,
+                        tint = if (index == selectedIndex)
+                            WTCBlue
+                        else
+                            WTCNavIcons,
+                        modifier = Modifier.size(34.dp)
+                    )
+                }
+            }
+        }
+    }
 }
