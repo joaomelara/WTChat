@@ -219,7 +219,7 @@ fun ChatItem(item: MessageModel) {
             Text(
                 modifier = Modifier.padding(start = 5.dp),
                 style = MaterialTheme.typography.bodySmall,
-                text = if (item.autor == userId) "Você" else item.nome
+                text = item.nome
             )
         }
         Box(
