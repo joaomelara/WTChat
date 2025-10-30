@@ -215,12 +215,13 @@ fun ChatItem(item: MessageModel) {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = if (item.autor == userId) Alignment.End else Alignment.Start
     ) {
-        Text(
-            modifier = Modifier.padding(start = if (item.autor == userId) 0.dp else 5.dp,
-                end = if (item.autor == userId) 5.dp else 0.dp),
-            style = MaterialTheme.typography.bodySmall,
-            text = if (item.autor == userId) "Você" else item.nome
-        )
+        if (item.autor != userId) {
+            Text(
+                modifier = Modifier.padding(start = 5.dp),
+                style = MaterialTheme.typography.bodySmall,
+                text = if (item.autor == userId) "Você" else item.nome
+            )
+        }
         Box(
             modifier = Modifier
                 .clip(
