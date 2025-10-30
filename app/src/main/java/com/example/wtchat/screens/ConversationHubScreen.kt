@@ -21,29 +21,40 @@ import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.ui.theme.WTCNavIcons
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
-import com.example.wtchat.Routes
+import com.example.wtchat.viewmodels.ChatViewModel
+
 
 @Composable
-fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewModel){
+fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewModel,  chatViewModel: ChatViewModel){
 
+    var popupMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        val chatId = "JzYJ03OPVyzttr6z1B5T"
+
+        chatViewModel.listenForNewMessages(chatId) { msg ->
+            popupMessage = msg
+        }
+    }
+
+    popupMessage?.let {
+        AlertDialog(
+            onDismissRequest = { popupMessage = null },
+            title = { Text("Nova mensagem!") },
+            text = { Text(it) },
+            confirmButton = {
+                TextButton(onClick = { popupMessage = null }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     
     
@@ -138,3 +149,4 @@ fun FloatingBottomBar(
         }
     }
 }
+

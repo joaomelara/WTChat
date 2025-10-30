@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-kapt")
 }
 
 android {
@@ -45,6 +46,12 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.firebase.firestore)
     val nav_version = "2.9.5"
+    val roomVersion = "2.6.1"
+
+
+    implementation("androidx.room:room-runtime:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion") // ✅ em vez de annotationProcessor
+    implementation("androidx.room:room-ktx:$roomVersion") // Coroutines + Flow
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
