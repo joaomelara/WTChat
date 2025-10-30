@@ -49,7 +49,7 @@ class AuthViewModel : ViewModel() {
 
     fun signup(crm: String, nome: String, email: String, senha: String){
 
-        if(email.isEmpty() || senha.isEmpty()){
+        if(email.isEmpty() || senha.isEmpty() || crm.isEmpty() || nome.isEmpty()){
             _authState.value = AuthState.Error("Por favor, preencha todos os campos.")
             return
         }

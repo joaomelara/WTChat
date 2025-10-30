@@ -1,17 +1,22 @@
 package com.example.wtchat.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -34,9 +40,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.example.wtchat.R
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.example.wtchat.Routes
+import com.example.wtchat.ui.theme.WTCBackground
+import com.example.wtchat.ui.theme.WTCBlue
+import com.example.wtchat.ui.theme.WTCGrey
+import com.example.wtchat.ui.theme.WTCOrange
+import com.example.wtchat.ui.theme.WTCRed
 
 @Composable
 fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
@@ -71,35 +83,62 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
     LaunchedEffect(authState.value) {
         when(authState.value){
-            is AuthState.Authenticated -> navController.navigate(Routes.ConversationHubScreen){
-                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+            is AuthState.Authenticated -> {
+                navController.navigate(Routes.ConversationHubScreen) {
+                    popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                }
+                loading.value = false
             }
             is AuthState.Loading -> loading.value = true
-            is AuthState.Error -> Toast.makeText(context,
-                (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            is AuthState.Error -> {
+                Toast.makeText(
+                    context,
+                    (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT
+                ).show()
+                loading.value = false
+            }
             else -> Unit
         }
     }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = WTCBackground
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
 
 
+            Image(
+                painter = painterResource(id = R.drawable.wtchatlogo), // Replace with your image name
+                contentDescription = null, // Provide a description for accessibility
+                modifier = Modifier.height(50.dp)
+                    .width(150.dp),
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
             // Title
             Text(
-                text = "Criar Conta",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                text = "Criar conta",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = WTCBlue
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .padding(horizontal = 16.dp)
+                    .height(4.dp)
+                    .background(WTCOrange, shape = RoundedCornerShape(50.dp))
             )
 
             Spacer(modifier = Modifier.height(50.dp))
@@ -118,11 +157,13 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent // Remove bottom border when unfocused
+                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
+                    unfocusedContainerColor = WTCGrey,
+                    focusedContainerColor = WTCGrey
                 ),
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -137,11 +178,13 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent // Remove bottom border when unfocused
+                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
+                    unfocusedContainerColor = WTCGrey,
+                    focusedContainerColor = WTCGrey
                 ),
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -159,11 +202,13 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent // Remove bottom border when unfocused
+                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
+                    unfocusedContainerColor = WTCGrey,
+                    focusedContainerColor = WTCGrey
                 ),
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -182,19 +227,21 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent // Remove bottom border when unfocused
+                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
+                    unfocusedContainerColor = WTCGrey,
+                    focusedContainerColor = WTCGrey
                 ),
             )
 
             if (errorMessage.value.isNotEmpty()) {
                 Text(
                     text = errorMessage.value,
-                    color = MaterialTheme.colorScheme.error,
+                    color = WTCRed,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(55.dp))
 
             // Login Button
             Button(
@@ -206,7 +253,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                colors = ButtonDefaults.buttonColors(containerColor = WTCBlue),
                 enabled = !loading.value
             ) {
                 Text(text = "Criar conta", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
@@ -222,7 +269,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !loading.value
             ) {
-                Text(text = "Já tem uma conta? Faça login", color = MaterialTheme.colorScheme.onBackground)
+                Text(text = "Já tem uma conta? Faça login", color = WTCOrange)
             }
         }
     }
