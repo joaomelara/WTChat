@@ -12,6 +12,8 @@ val Pink40 = Color(0xFF7D5260)
 
 val WTCOrange = Color(0xFFE4580A)
 val WTCBlue = Color(0xFF154074)
+val WTCLightBlue = Color(0xFF295182)
 val WTCGrey = Color(0xFFF5F5F5)
 val WTCBackground = Color(0xFFFFFFFF)
+val WTCOnPrimary = Color(0xFFFFFFFF)
 val WTCRed = Color(0xFFFF3D3D)

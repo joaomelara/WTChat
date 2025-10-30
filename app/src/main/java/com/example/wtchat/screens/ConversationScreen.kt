@@ -53,6 +53,8 @@ import com.example.wtchat.models.MessageModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
+import com.example.wtchat.ui.theme.WTCLightBlue
+import com.example.wtchat.ui.theme.WTCOnPrimary
 import com.example.wtchat.ui.theme.WTCOrange
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
@@ -172,13 +174,15 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                     keyboardType = KeyboardType.Email
                 ),
                 placeholder = {
-                    Text(text = "Escreva uma mensagem")
+                    Text(text = "Escreva uma mensagem", color = WTCBlue)
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
                     unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
                     unfocusedContainerColor = WTCGrey,
-                    focusedContainerColor = WTCGrey
+                    focusedContainerColor = WTCGrey,
+                    focusedTextColor = WTCBlue,
+                    unfocusedTextColor = WTCBlue
                 ),
                 )
             IconButton(
@@ -227,11 +231,12 @@ fun ChatItem(item: MessageModel) {
                         bottomEnd = if (item.autor == userId) 0f else 48f
                     )
                 )
-                .background(WTCGrey)
+                .background(if (item.autor == userId) WTCGrey else WTCLightBlue)
                 .padding(16.dp)
         ) {
             Text(
                 style = MaterialTheme.typography.bodyMedium,
+                color = if (item.autor == userId) WTCBlue else WTCOnPrimary,
                 text = item.texto
             )
         }
