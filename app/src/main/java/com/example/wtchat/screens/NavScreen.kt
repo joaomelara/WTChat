@@ -1,5 +1,6 @@
 package com.example.wtchat.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,17 +20,35 @@ import com.example.wtchat.pages.SettingsPage
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
-import com.example.wtchat.ui.theme.WTCNavIcons
+import com.example.wtchat.ui.theme.WTCOnGrey
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.example.wtchat.Routes
+import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun NavScreen(navController: NavController, authViewModel: AuthViewModel){
+
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> {
+                navController.navigate(Routes.LoginScreen) {
+                    popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                }
+            }
+            else -> Unit
+        }
+    }
 
     val navItemList = listOf(
         NavItem("Home", Icons.Default.Home),
@@ -72,10 +91,12 @@ fun ContentScreen(
     navController: NavController ,
     authViewModel: AuthViewModel
 ) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid!!
+
     Box(modifier = modifier.fillMaxSize()) {
         when (selectedIndex) {
             0 -> HubPage(navController, authViewModel)
-            1 -> ProfilePage(navController, authViewModel)
+            1 -> ProfilePage(navController, authViewModel, "Hub", userId)
             2 -> SettingsPage(navController, authViewModel)
         }
     }
@@ -114,7 +135,7 @@ fun FloatingBottomBar(
                         tint = if (index == selectedIndex)
                             WTCBlue
                         else
-                            WTCNavIcons,
+                            WTCOnGrey,
                         modifier = Modifier.size(34.dp)
                     )
                 }

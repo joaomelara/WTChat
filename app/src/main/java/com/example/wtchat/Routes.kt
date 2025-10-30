@@ -6,5 +6,6 @@ object Routes {
     var SignUpScreen = "SignUp_Screen"
     var LoadingScreen = "Loading_Screen"
     var ConversationScreen = "Conversation_Screen"
-
+    var ParticipantsScreen = "Participants_Screen"
+    var ProfilePage = "Profile_Page"
 }
