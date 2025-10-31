@@ -57,6 +57,10 @@ import com.example.wtchat.ui.theme.WTCRed
 @Composable
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
 
+    var cliente = remember {
+        mutableStateOf(true)
+    }
+
     var errorMessage = remember {
         mutableStateOf("")
     }
@@ -119,7 +123,6 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            // Title
             Text(
                 text = "Login",
                 style = MaterialTheme.typography.titleMedium,
@@ -139,7 +142,6 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            // Subtitle
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -198,7 +200,6 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(55.dp))
 
-            // Login Button
             Button(
                 onClick = {
                     if (email.value.isBlank() || senha.value.isBlank()) {
@@ -208,15 +209,14 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = WTCBlue),
+                colors = ButtonDefaults.buttonColors(containerColor = if(cliente.value) WTCBlue else WTCOrange),
                 enabled = !loading.value
             ) {
-                Text(text = "Entrar", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
+                Text(text = if(cliente.value) "Entrar como cliente" else "Entrar como operador", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Registration Button
             TextButton(
                 onClick = {
                     navController.navigate(Routes.SignUpScreen)
@@ -226,6 +226,19 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
             ) {
                 Text(text = "Não tem uma conta? Registre-se", color = WTCOrange)
             }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            TextButton(
+                onClick = {
+                    cliente.value = !cliente.value
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !loading.value
+            ) {
+                    Text(text = if(cliente.value) "Fazer login como operador" else "Fazer login como cliente", color = if(cliente.value) WTCOrange else WTCBlue)
+            }
+
         }
     }
 }

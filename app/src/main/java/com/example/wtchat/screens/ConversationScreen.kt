@@ -1,6 +1,7 @@
 package com.example.wtchat.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -118,7 +119,9 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                 .fillMaxWidth()
                 .background(WTCGrey)
                 .height(60.dp)
-                .padding(horizontal = 20.dp)
+                .clickable(onClick = {
+                    navController.navigate(Routes.ParticipantsScreen+"/"+chatId)
+                })
                 .constrainAs(headerBox) {
                     top.linkTo(parent.top)
                     bottom.linkTo(messages.top)

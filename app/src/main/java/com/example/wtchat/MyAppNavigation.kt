@@ -1,14 +1,15 @@
 package com.example.wtchat
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.wtchat.screens.ConversationHubScreen
+import com.example.wtchat.pages.ProfilePage
+import com.example.wtchat.screens.NavScreen
 import com.example.wtchat.screens.ConversationScreen
 import com.example.wtchat.screens.LoadingScreen
 import com.example.wtchat.screens.LoginScreen
+import com.example.wtchat.screens.ParticipantsScreen
 import com.example.wtchat.screens.SignUpScreen
 import com.example.wtchat.viewmodels.AuthViewModel
 
@@ -30,7 +31,7 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
 
         //some data passing tests
         composable(Routes.ConversationHubScreen){
-            ConversationHubScreen(navController, authViewModel)
+            NavScreen(navController, authViewModel)
         }
 
         composable(Routes.ConversationScreen + "/{chatId}/{chatNome}/{userNome}") {
@@ -38,6 +39,17 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
             val chatNome = it.arguments?.getString("chatNome") ?: "Unnamed Chat"
             val userNome = it.arguments?.getString("userNome") ?: "Anônimo"
             ConversationScreen(navController, authViewModel, chatId, chatNome, userNome)
+        }
+
+        composable(Routes.ParticipantsScreen + "/{chatId}") {
+            val chatId = it.arguments?.getString("chatId") ?: "Error"
+            ParticipantsScreen(navController, authViewModel, chatId)
+        }
+
+        composable(Routes.ProfilePage + "/{userId}/{userName}") {
+            val userId = it.arguments?.getString("userId") ?: "Error"
+            val userName = it.arguments?.getString("userName") ?: ""
+            ProfilePage(navController, authViewModel, "Participants", userId, userName)
         }
 
     })

@@ -1,5 +1,6 @@
 package com.example.wtchat.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,38 +20,43 @@ import com.example.wtchat.pages.SettingsPage
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
-import com.example.wtchat.ui.theme.WTCNavIcons
+import com.example.wtchat.ui.theme.WTCOnGrey
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.example.wtchat.Routes
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
-import com.example.wtchat.Routes
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun ConversationHubScreen(navController: NavController ,authViewModel: AuthViewModel){
+fun NavScreen(navController: NavController, authViewModel: AuthViewModel){
 
+    val authState = authViewModel.authState.observeAsState()
 
-
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> {
+                navController.navigate(Routes.LoginScreen) {
+                    popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                }
+            }
+            else -> Unit
+        }
+    }
 
     val navItemList = listOf(
-        NavItem("Home", Icons.Default.Home),
-        NavItem("Profile", Icons.Default.Person),
-        NavItem("Settings", Icons.Default.Settings)
+        NavItem("Home", Icons.Rounded.Home),
+        NavItem("Profile", Icons.Rounded.Person),
+        NavItem("Settings", Icons.Rounded.Settings)
     )
 
     var selectedIndex by remember { mutableStateOf(0) }
@@ -88,10 +94,12 @@ fun ContentScreen(
     navController: NavController ,
     authViewModel: AuthViewModel
 ) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid!!
+
     Box(modifier = modifier.fillMaxSize()) {
         when (selectedIndex) {
             0 -> HubPage(navController, authViewModel)
-            1 -> ProfilePage(navController, authViewModel)
+            1 -> ProfilePage(navController, authViewModel, "Hub", userId)
             2 -> SettingsPage(navController, authViewModel)
         }
     }
@@ -130,7 +138,7 @@ fun FloatingBottomBar(
                         tint = if (index == selectedIndex)
                             WTCBlue
                         else
-                            WTCNavIcons,
+                            WTCOnGrey,
                         modifier = Modifier.size(34.dp)
                     )
                 }
