@@ -1,5 +1,6 @@
 package com.example.wtchat.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -197,6 +198,8 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                     val message = MessageModel(userId, userNome, novaMensagem.value, messageDate)
 
                     Firebase.firestore.collection("chats").document(chatId).collection("messages").add(message)
+                    Toast.makeText(context, "Message sent", Toast.LENGTH_SHORT).show()
+
                     novaMensagem.value = ""
                 },
             ) {
