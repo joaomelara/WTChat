@@ -93,7 +93,7 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
             }
             is AuthState.Authenticated -> {
                 try {
-                    val messages = RetrofitInstance.messagesService.getMessages(chatId)
+                    val messages = RetrofitInstance.getInstance().messagesService.getMessages(chatId)
                     mensagens.value = messages
                 } catch (e: Exception) {
                     e.printStackTrace()

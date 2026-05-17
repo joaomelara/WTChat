@@ -61,7 +61,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _authToken.value = response.accessToken
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
-                println(e.message)
+                println("Login error: ${e.message}")
                 _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
             }
         }
@@ -95,6 +95,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _authToken.value = response.accessToken
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
+                println("Signup error: ${e.message}")
                 _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
             }
         }

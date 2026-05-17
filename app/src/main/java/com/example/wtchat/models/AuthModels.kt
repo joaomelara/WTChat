@@ -31,9 +31,3 @@ data class SignUpRequest(
     val segment: String,
     val roles: Set<String>? = null
 )
-
-@Serializable
-data class MessageResponse(
-    val message: String
-)
-
