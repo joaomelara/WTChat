@@ -1,5 +1,8 @@
 package com.example.wtchat.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class UserModel(
     val uid: String = "",
     val crm: String = "",

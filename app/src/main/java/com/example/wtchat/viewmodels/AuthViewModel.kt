@@ -1,16 +1,20 @@
 package com.example.wtchat.viewmodels
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wtchat.api.RetrofitInstance
 import com.example.wtchat.models.SignInRequest
 import com.example.wtchat.models.SignUpRequest
+import com.example.wtchat.models.UserModel
+import com.example.wtchat.utils.TokenManager
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val tokenManager = TokenManager(application)
     private val authService = RetrofitInstance.authService
 
     private val _authState = MutableLiveData<AuthState>()
@@ -24,17 +28,18 @@ class AuthViewModel : ViewModel() {
     }
 
     fun checkAuthStatus(){
-        // Check if token exists (implement token persistence with DataStore/SharedPreferences)
-        _authState.value = if(_authToken.value != null) {
-            AuthState.Authenticated
+        val token = tokenManager.getAccessToken()
+        if (token == null) {
+            _authState.value = AuthState.Unauthenticated
         } else {
-            AuthState.Unauthenticated
+            _authToken.value = token
+            _authState.value = AuthState.Authenticated
         }
     }
 
     fun login(email: String, senha: String){
 
-        if(email.isEmpty() || senha.isEmpty()){
+        if (email.isEmpty() || senha.isEmpty()) {
             _authState.value = AuthState.Error("Por favor, preencha todos os campos.")
             return
         }
@@ -44,6 +49,14 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = authService.signIn(SignInRequest(email, senha))
+                val loggedInUser = UserModel(
+                    uid = response.id,
+                    email = response.email,
+                    crm = response.username,
+                    roles = response.roles,
+                    segment = response.segment
+                )
+                tokenManager.saveToken(response.accessToken, loggedInUser)
                 _authToken.value = response.accessToken
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
@@ -64,6 +77,14 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = authService.signUp(SignUpRequest(crm, nome, email, senha))
+                val signedInuser = UserModel(
+                    uid = response.id,
+                    email = response.email,
+                    crm = response.username,
+                    roles = response.roles,
+                    segment = response.segment
+                )
+                tokenManager.saveToken(response.accessToken, signedInuser)
                 _authToken.value = response.accessToken
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
@@ -73,6 +94,7 @@ class AuthViewModel : ViewModel() {
     }
 
     fun signout(){
+        tokenManager.clearToken()
         _authToken.value = null
         _authState.value = AuthState.Unauthenticated
     }

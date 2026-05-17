@@ -31,8 +31,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.wtchat.Routes
+import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -94,7 +96,10 @@ fun ContentScreen(
     navController: NavController ,
     authViewModel: AuthViewModel
 ) {
-    val userId = FirebaseAuth.getInstance().currentUser?.uid!!
+
+    val context = LocalContext.current
+    val tokenManager = TokenManager(context)
+    val userId = tokenManager.getUser()?.uid!!
 
     Box(modifier = modifier.fillMaxSize()) {
         when (selectedIndex) {
