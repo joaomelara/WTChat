@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -126,20 +128,21 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(20.dp, 0.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
 
-
-            Image(
+            Spacer(modifier = Modifier.height(30.dp))
+            /* Image(
                 painter = painterResource(id = R.drawable.wtchatlogo), // Replace with your image name
                 contentDescription = null, // Provide a description for accessibility
                 modifier = Modifier.height(50.dp)
                     .width(150.dp),
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(40.dp))*/
 
             Text(
                 text = "Criar conta",
@@ -158,7 +161,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                     .background(WTCOrange, shape = RoundedCornerShape(50.dp))
             )
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -251,41 +254,6 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                  ),
              )
 
-              Spacer(modifier = Modifier.height(20.dp))
-
-              Box(modifier = Modifier.fillMaxWidth()) {
-                  Button(
-                      onClick = {
-                          expandedSegment.value = !expandedSegment.value
-                      },
-                      modifier = Modifier.fillMaxWidth(),
-                      colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
-                      shape = RoundedCornerShape(20.dp)
-                  ) {
-                      Text(
-                          text = "Segmento: ${ selectedSegment.value }",
-                          color = Color.Black,
-                          modifier = Modifier.weight(1f)
-                      )
-                  }
-
-                  DropdownMenu(
-                      expanded = expandedSegment.value,
-                      onDismissRequest = { expandedSegment.value = false },
-                      modifier = Modifier.fillMaxWidth(0.9f)
-                  ) {
-                      listOf("RETAIL", "HEALTHCARE", "EDUCATION", "FINANCE", "TECHNOLOGY").forEach { seg ->
-                          DropdownMenuItem(
-                              text = { Text(seg) },
-                              onClick = {
-                                  selectedSegment.value = seg
-                                  expandedSegment.value = false
-                              }
-                          )
-                      }
-                  }
-              }
-
                Spacer(modifier = Modifier.height(20.dp))
 
               Box(modifier = Modifier.fillMaxWidth()) {
@@ -298,7 +266,8 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                       shape = RoundedCornerShape(20.dp)
                   ) {
                       Text(
-                          text = "Função: ${ selectedRole.value.replace("ROLE_", "") }",
+                          text = "Função: ${ selectedRole.value.replace("ROLE_", "")
+                              .replace("ADMIN", "Operador").replace("USER", "Usuário") }",
                           color = Color.Black,
                           modifier = Modifier.weight(1f)
                       )
@@ -318,7 +287,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                      )
 
                      DropdownMenuItem(
-                         text = { Text("Administrador") },
+                         text = { Text("Operador") },
                          onClick = {
                              selectedRole.value = "ROLE_ADMIN"
                              expandedRole.value = false
@@ -326,6 +295,42 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                      )
                  }
              }
+
+            if(selectedRole.value != "ROLE_ADMIN"){
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = {
+                            expandedSegment.value = !expandedSegment.value
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text(
+                            text = "Segmento: ${ selectedSegment.value }",
+                            color = Color.Black,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expandedSegment.value,
+                        onDismissRequest = { expandedSegment.value = false },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        listOf("RETAIL", "HEALTHCARE", "EDUCATION", "FINANCE", "TECHNOLOGY").forEach { seg ->
+                            DropdownMenuItem(
+                                text = { Text(seg) },
+                                onClick = {
+                                    selectedSegment.value = seg
+                                    expandedSegment.value = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
 
             if (errorMessage.value.isNotEmpty()) {
                 Text(
@@ -363,6 +368,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
             ) {
                 Text(text = "Já tem uma conta? Faça login", color = WTCOrange)
             }
+            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }

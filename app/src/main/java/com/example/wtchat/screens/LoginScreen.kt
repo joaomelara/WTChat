@@ -137,7 +137,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
                     .background(WTCOrange, shape = RoundedCornerShape(50.dp))
             )
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
