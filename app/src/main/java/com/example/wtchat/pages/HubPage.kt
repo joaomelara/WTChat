@@ -50,11 +50,13 @@ import com.example.wtchat.R
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.example.wtchat.Routes
+import com.example.wtchat.api.RetrofitInstance
 import com.example.wtchat.models.ChatModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.ui.theme.WTCOrange
+import com.example.wtchat.utils.TokenManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
@@ -71,9 +73,12 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
         mutableStateOf<List<ChatModel>>(emptyList())
     }
 
+    val chatsService = RetrofitInstance.getInstance().chatsService
+
     var userNome = ""
 
     var context = LocalContext.current
+    val tokenManager = TokenManager(context)
 
     val authState = authViewModel.authState.observeAsState()
 
@@ -83,22 +88,9 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
             is AuthState.Authenticated -> {
-                Firebase.firestore.collection("chats").whereArrayContains("participantes",
-                    FirebaseAuth.getInstance().currentUser?.uid!!).get().addOnCompleteListener {
-                    if(it.isSuccessful) {
-                        val results = it.result.documents.mapNotNull { doc ->
-                            doc.toObject(ChatModel::class.java)
-                        }
-                        conversas.value = results
-                    }
-                }
+                conversas.value = chatsService.getChats();
 
-                Firebase.firestore.collection("users")
-                    .document(FirebaseAuth.getInstance().currentUser?.uid!!).get().addOnCompleteListener {
-                        if(it.isSuccessful) {
-                            userNome = it.result.getString("nome")!!
-                        }
-                    }
+                userNome = tokenManager.getUser()?.name ?: "Nome"
 
             }
             else -> Unit
@@ -159,7 +151,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ConversationScreen+"/"+item.uid+"/"+item.titulo+"/"+userNome)
+                                navController.navigate(Routes.ConversationScreen+"/"+item.id+"/"+item.name+"/"+userNome)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 
@@ -176,7 +168,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
 
                         Text(
                             style = MaterialTheme.typography.titleMedium,
-                            text = item.titulo
+                            text = item.name
                         )
 
                     }

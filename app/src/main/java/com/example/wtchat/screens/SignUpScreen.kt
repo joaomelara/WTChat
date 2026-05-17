@@ -12,10 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -73,6 +77,22 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
         mutableStateOf("")
     }
 
+    var selectedSegment = remember {
+        mutableStateOf("RETAIL")  // Valor padrão
+    }
+
+    var expandedSegment = remember {
+        mutableStateOf(false)
+    }
+
+    var selectedRole = remember {
+        mutableStateOf("ROLE_USER")  // Valor padrão
+    }
+
+    var expandedRole = remember {
+        mutableStateOf(false)
+    }
+
     var loading = remember {
         mutableStateOf(false)
     }
@@ -108,20 +128,21 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(20.dp, 0.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
 
-
-            Image(
+            Spacer(modifier = Modifier.height(30.dp))
+            /* Image(
                 painter = painterResource(id = R.drawable.wtchatlogo), // Replace with your image name
                 contentDescription = null, // Provide a description for accessibility
                 modifier = Modifier.height(50.dp)
                     .width(150.dp),
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(40.dp))*/
 
             Text(
                 text = "Criar conta",
@@ -140,7 +161,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                     .background(WTCOrange, shape = RoundedCornerShape(50.dp))
             )
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -208,30 +229,108 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 ),
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+             Spacer(modifier = Modifier.height(20.dp))
 
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                value = senha.value,
-                visualTransformation = PasswordVisualTransformation(),
-                onValueChange = { novoValor ->
-                    senha.value = novoValor
-                    errorMessage.value = "" // Clear error message on input change
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
-                ),
-                placeholder = {
-                    Text(text = "Sua senha")
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
-                    unfocusedContainerColor = WTCGrey,
-                    focusedContainerColor = WTCGrey
-                ),
-            )
+             TextField(
+                 modifier = Modifier.fillMaxWidth(),
+                 shape = RoundedCornerShape(20.dp),
+                 value = senha.value,
+                 visualTransformation = PasswordVisualTransformation(),
+                 onValueChange = { novoValor ->
+                     senha.value = novoValor
+                     errorMessage.value = "" // Clear error message on input change
+                 },
+                 keyboardOptions = KeyboardOptions(
+                     keyboardType = KeyboardType.Password
+                 ),
+                 placeholder = {
+                     Text(text = "Sua senha")
+                 },
+                 colors = TextFieldDefaults.colors(
+                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
+                     unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
+                     unfocusedContainerColor = WTCGrey,
+                     focusedContainerColor = WTCGrey
+                 ),
+             )
+
+               Spacer(modifier = Modifier.height(20.dp))
+
+              Box(modifier = Modifier.fillMaxWidth()) {
+                  Button(
+                      onClick = {
+                          expandedRole.value = !expandedRole.value
+                      },
+                      modifier = Modifier.fillMaxWidth(),
+                      colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
+                      shape = RoundedCornerShape(20.dp)
+                  ) {
+                      Text(
+                          text = "Função: ${ selectedRole.value.replace("ROLE_", "")
+                              .replace("ADMIN", "Operador").replace("USER", "Usuário") }",
+                          color = Color.Black,
+                          modifier = Modifier.weight(1f)
+                      )
+                  }
+
+                 DropdownMenu(
+                     expanded = expandedRole.value,
+                     onDismissRequest = { expandedRole.value = false },
+                     modifier = Modifier.fillMaxWidth(0.9f)
+                 ) {
+                     DropdownMenuItem(
+                         text = { Text("Usuário") },
+                         onClick = {
+                             selectedRole.value = "ROLE_USER"
+                             expandedRole.value = false
+                         }
+                     )
+
+                     DropdownMenuItem(
+                         text = { Text("Operador") },
+                         onClick = {
+                             selectedRole.value = "ROLE_ADMIN"
+                             expandedRole.value = false
+                         }
+                     )
+                 }
+             }
+
+            if(selectedRole.value != "ROLE_ADMIN"){
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = {
+                            expandedSegment.value = !expandedSegment.value
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text(
+                            text = "Segmento: ${ selectedSegment.value }",
+                            color = Color.Black,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expandedSegment.value,
+                        onDismissRequest = { expandedSegment.value = false },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        listOf("RETAIL", "HEALTHCARE", "EDUCATION", "FINANCE", "TECHNOLOGY").forEach { seg ->
+                            DropdownMenuItem(
+                                text = { Text(seg) },
+                                onClick = {
+                                    selectedSegment.value = seg
+                                    expandedSegment.value = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
 
             if (errorMessage.value.isNotEmpty()) {
                 Text(
@@ -243,20 +342,20 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(55.dp))
 
-            Button(
-                onClick = {
-                    if (email.value.isBlank() || senha.value.isBlank() || nome.value.isBlank() || crm.value.isBlank()) {
-                        errorMessage.value = "Por favor, preencha todos os campos." // Set error message
-                    } else {
-                        authViewModel.signup(crm.value, nome.value, email.value, senha.value)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = WTCBlue),
-                enabled = !loading.value
-            ) {
-                Text(text = "Criar conta", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
-            }
+              Button(
+                  onClick = {
+                      if (email.value.isBlank() || senha.value.isBlank() || nome.value.isBlank() || crm.value.isBlank()) {
+                          errorMessage.value = "Por favor, preencha todos os campos." // Set error message
+                      } else {
+                          authViewModel.signup(crm.value, nome.value, email.value, senha.value, selectedSegment.value, setOf(selectedRole.value))
+                      }
+                  },
+                  modifier = Modifier.fillMaxWidth(),
+                  colors = ButtonDefaults.buttonColors(containerColor = WTCBlue),
+                  enabled = !loading.value
+              ) {
+                  Text(text = "Criar conta", color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(8.dp))
+              }
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -269,6 +368,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
             ) {
                 Text(text = "Já tem uma conta? Faça login", color = WTCOrange)
             }
+            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }

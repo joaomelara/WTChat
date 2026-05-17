@@ -107,7 +107,7 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ProfilePage+"/"+item.uid+"/"+item.nome)
+                                navController.navigate(Routes.ProfilePage+"/"+item.id+"/"+item.name)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 
@@ -124,7 +124,7 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
 
                         Text(
                             style = MaterialTheme.typography.titleMedium,
-                            text = item.nome
+                            text = item.name
                         )
 
                     }

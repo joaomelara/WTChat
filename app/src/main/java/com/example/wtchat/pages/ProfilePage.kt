@@ -28,16 +28,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.wtchat.Routes
+import com.example.wtchat.api.RetrofitInstance
 import com.example.wtchat.models.UserModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.ui.theme.WTCOrange
+import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
@@ -51,11 +54,16 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
         mutableStateOf("")
     }
 
+    var context = LocalContext.current
+    val tokenManager = TokenManager(context)
     val authState = authViewModel.authState.observeAsState()
+    val usersService = RetrofitInstance.getInstance().usersService
 
-    val safeName = remember {
-        mutableStateOf("")
+    val safeUser = remember {
+        mutableStateOf(UserModel())
     }
+
+    val userIdStored = tokenManager.getUser()?.id ?: "Error"
 
     LaunchedEffect(authState.value) {
         when(authState.value){
@@ -64,12 +72,8 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
             }
             is AuthState.Authenticated -> {
                 if (userName.isEmpty() && userId != "Error") {
-                    Firebase.firestore.collection("users").document(userId).get()
-                        .addOnCompleteListener {
-                            if (it.isSuccessful) {
-                                safeName.value = it.result.get("nome").toString()
-                            }
-                        }
+                    println("Buscando usuário com ID: $userId, token user ID: $userIdStored")
+                    safeUser.value = usersService.getUser(userId)
                 }
             }
             else -> Unit
@@ -98,7 +102,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
             Spacer(modifier = Modifier.height(25.dp))
             Text(
                 style = MaterialTheme.typography.titleLarge,
-                text = userName.ifEmpty { safeName.value }
+                text = userName.ifEmpty { safeUser.value.name }
             )
             Spacer(modifier = Modifier.height(8.dp))
             Box(
@@ -109,7 +113,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
                     .background(WTCOrange, shape = RoundedCornerShape(50.dp))
             )
             Spacer(modifier = Modifier.height(40.dp))
-            if(userId != FirebaseAuth.getInstance().currentUser?.uid!!){
+            if(userId != userIdStored){
 
                     Text(
                         style = MaterialTheme.typography.titleMedium,

@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val tokenManager = TokenManager(application)
-    private val authService = RetrofitInstance.authService
+    private val authService = RetrofitInstance.getInstance().authService
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
@@ -50,9 +50,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val response = authService.signIn(SignInRequest(email, senha))
                 val loggedInUser = UserModel(
-                    uid = response.id,
+                    id = response.id,
+                    username = response.username,
+                    name = response.name,
                     email = response.email,
-                    crm = response.username,
                     roles = response.roles,
                     segment = response.segment
                 )
@@ -60,14 +61,15 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _authToken.value = response.accessToken
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
+                println("Login error: ${e.message}")
                 _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
             }
         }
     }
 
-    fun signup(crm: String, nome: String, email: String, senha: String){
+    fun signup(username: String, name: String, email: String, senha: String, segment: String, roles: Set<String>? = null){
 
-        if(email.isEmpty() || senha.isEmpty() || crm.isEmpty() || nome.isEmpty()){
+        if(email.isEmpty() || senha.isEmpty() || username.isEmpty() || name.isEmpty() || segment.isEmpty()){
             _authState.value = AuthState.Error("Por favor, preencha todos os campos.")
             return
         }
@@ -76,18 +78,24 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             try {
-                val response = authService.signUp(SignUpRequest(crm, nome, email, senha))
-                val signedInuser = UserModel(
-                    uid = response.id,
+                // Send signup request
+                authService.signUp(SignUpRequest(username, name, email, senha, segment, roles))
+
+                // If signup is successful, auto-login the user
+                val response = authService.signIn(SignInRequest(email, senha))
+                val signedInUser = UserModel(
+                    id = response.id,
+                    username = response.username,
+                    name = response.name,
                     email = response.email,
-                    crm = response.username,
                     roles = response.roles,
                     segment = response.segment
                 )
-                tokenManager.saveToken(response.accessToken, signedInuser)
+                tokenManager.saveToken(response.accessToken, signedInUser)
                 _authToken.value = response.accessToken
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
+                println("Signup error: ${e.message}")
                 _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
             }
         }
