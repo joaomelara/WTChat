@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="/RetrofitClient (snapshot).kt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="/RetrofitClient (snapshot).kt" />
+              <option name="updatedContent" value="package com.example.wtchat.network&#10;&#10;import okhttp3.OkHttpClient&#10;import okhttp3.logging.HttpLoggingInterceptor&#10;import retrofit2.Retrofit&#10;import retrofit2.converter.gson.GsonConverterFactory&#10;import java.util.concurrent.TimeUnit&#10;&#10;object RetrofitClient {&#10;    // Configure your Spring Boot backend URL here&#10;    private const val BASE_URL = &quot;http://192.168.15.30:8080/&quot;&#10;&#10;    private val loggingInterceptor = HttpLoggingInterceptor().apply {&#10;        level = HttpLoggingInterceptor.Level.BODY&#10;    }&#10;&#10;    private val httpClient = OkHttpClient.Builder()&#10;        .addInterceptor(loggingInterceptor)&#10;        .connectTimeout(30, TimeUnit.SECONDS)&#10;        .readTimeout(30, TimeUnit.SECONDS)&#10;        .writeTimeout(30, TimeUnit.SECONDS)&#10;        .build()&#10;&#10;    val apiService: ApiService by lazy {&#10;        Retrofit.Builder()&#10;            .baseUrl(BASE_URL)&#10;            .addConverterFactory(GsonConverterFactory.create())&#10;            .client(httpClient)&#10;            .build()&#10;            .create(ApiService::class.java)&#10;    }&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -49,6 +49,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.wtchat.Routes
+import com.example.wtchat.api.RetrofitInstance
 import com.example.wtchat.models.ChatModel
 import com.example.wtchat.models.MessageModel
 import com.example.wtchat.ui.theme.WTCBackground
@@ -91,15 +92,12 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
             is AuthState.Authenticated -> {
-                Firebase.firestore.collection("chats").document(chatId)
-                    .collection("messages").orderBy("data").addSnapshotListener { snapshot, e ->
-                        if(e == null && snapshot != null) {
-                            val results = snapshot.documents.mapNotNull { doc ->
-                                doc.toObject(MessageModel::class.java)
-                            }
-                            mensagens.value = results
-                        }
-                    }
+                try {
+                    val messages = RetrofitInstance.messagesService.getMessages(chatId)
+                    mensagens.value = messages
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             else -> Unit
         }
