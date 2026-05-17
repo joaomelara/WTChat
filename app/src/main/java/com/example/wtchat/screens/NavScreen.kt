@@ -99,7 +99,7 @@ fun ContentScreen(
 
     val context = LocalContext.current
     val tokenManager = TokenManager(context)
-    val userId = tokenManager.getUser()?.uid!!
+    val userId = tokenManager.getUser()?.id!!
 
     Box(modifier = modifier.fillMaxSize()) {
         when (selectedIndex) {

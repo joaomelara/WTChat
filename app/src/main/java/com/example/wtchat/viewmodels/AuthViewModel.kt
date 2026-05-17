@@ -50,7 +50,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val response = authService.signIn(SignInRequest(email, senha))
                 val loggedInUser = UserModel(
-                    uid = response.id,
+                    id = response.id,
                     username = response.username,
                     name = response.name,
                     email = response.email,
@@ -84,7 +84,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 // If signup is successful, auto-login the user
                 val response = authService.signIn(SignInRequest(email, senha))
                 val signedInUser = UserModel(
-                    uid = response.id,
+                    id = response.id,
                     username = response.username,
                     name = response.name,
                     email = response.email,

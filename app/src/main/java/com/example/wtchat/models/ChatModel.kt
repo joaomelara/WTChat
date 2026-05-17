@@ -1,9 +1,11 @@
 package com.example.wtchat.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ChatModel(
-    val uid: String = "",
-    val titulo: String = "",
-    val descricao: String = "",
-    val tipo: String = "",
-    val participantes: List<String> = emptyList()
+    val id: String = "",
+    val name: String = "",
+    val segment: String = "",
+    val privateChatMembers: List<String> = emptyList()
 )

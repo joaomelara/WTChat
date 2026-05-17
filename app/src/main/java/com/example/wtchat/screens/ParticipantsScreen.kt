@@ -107,7 +107,7 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ProfilePage+"/"+item.uid+"/"+item.name)
+                                navController.navigate(Routes.ProfilePage+"/"+item.id+"/"+item.name)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 

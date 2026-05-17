@@ -51,5 +51,7 @@ class RetrofitInstance private constructor(context: Context) {
 
     val authService: AuthService = retrofit.create(AuthService::class.java)
     val messagesService: MessagesService = retrofit.create(MessagesService::class.java)
+    val chatsService: ChatsService = retrofit.create(ChatsService::class.java)
+    val usersService: UsersService = retrofit.create(UsersService::class.java)
 }
 
