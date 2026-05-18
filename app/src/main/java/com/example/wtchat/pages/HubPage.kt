@@ -1,10 +1,7 @@
 package com.example.wtchat.pages
 
-import android.media.Image
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,17 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -40,13 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.example.wtchat.R
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.example.wtchat.Routes
@@ -56,12 +46,7 @@ import com.example.wtchat.models.UserModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
-import com.example.wtchat.ui.theme.WTCOrange
 import com.example.wtchat.utils.TokenManager
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.toObject
 
 @Composable
 fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
@@ -108,7 +93,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                     val updatedChats = filteredChats.map { chat ->
                         if(chat.privateChatMembers.contains(currentUser?.id)){
                             val otherUserId = chat.privateChatMembers.first { it != currentUser?.id }
-                            val tempUserModel: UserModel = usersService.getUser(otherUserId)
+                            val tempUserModel: UserModel = usersService.getUserById(otherUserId)
                             chat.copy(name = tempUserModel.name)
                         } else {
                             chat

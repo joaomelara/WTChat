@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,9 +42,6 @@ import com.example.wtchat.ui.theme.WTCOrange
 import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.firestore
 
 @Composable
 fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, origin: String, userId: String, userName: String = ""){
@@ -73,7 +69,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
             is AuthState.Authenticated -> {
                 if (userName.isEmpty() && userId != "Error") {
                     println("Buscando usuário com ID: $userId, token user ID: $userIdStored")
-                    safeUser.value = usersService.getUser(userId)
+                    safeUser.value = usersService.getUserById(userId)
                 }
             }
             else -> Unit

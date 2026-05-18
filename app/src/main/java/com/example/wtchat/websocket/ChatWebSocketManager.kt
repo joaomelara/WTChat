@@ -63,6 +63,7 @@ class ChatWebSocketManager {
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            println("WebSocket disconnected")
             connectionStatus.postValue(WebSocketStatus.Disconnected)
         }
     }
