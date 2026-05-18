@@ -58,6 +58,7 @@ import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.ui.theme.WTCLightBlue
 import com.example.wtchat.ui.theme.WTCOnPrimary
 import com.example.wtchat.ui.theme.WTCOrange
+import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
@@ -68,9 +69,11 @@ import java.time.ZoneId
 import java.util.Date
 
 @Composable
-fun ConversationScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String, chatNome: String, userNome: String){
+fun ConversationScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String, chatNome: String){
 
     var context = LocalContext.current
+    val tokenManager = TokenManager(context)
+    val userNome = tokenManager.getUser()?.name ?: "Error"
 
     val userId = FirebaseAuth.getInstance().currentUser?.uid!!
 

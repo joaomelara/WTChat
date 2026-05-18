@@ -52,6 +52,7 @@ import com.example.wtchat.viewmodels.AuthViewModel
 import com.example.wtchat.Routes
 import com.example.wtchat.api.RetrofitInstance
 import com.example.wtchat.models.ChatModel
+import com.example.wtchat.models.UserModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
@@ -74,8 +75,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
     }
 
     val chatsService = RetrofitInstance.getInstance().chatsService
-
-    var userNome = ""
+    val usersService = RetrofitInstance.getInstance().usersService
 
     var context = LocalContext.current
     val tokenManager = TokenManager(context)
@@ -88,9 +88,36 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
             is AuthState.Authenticated -> {
-                conversas.value = chatsService.getChats();
+                try {
+                    val currentUser = tokenManager.getUser()
+                    val chats = chatsService.getChats()
 
-                userNome = tokenManager.getUser()?.name ?: "Nome"
+                    val filteredChats = chats.filter { chat ->
+                        // If it's a private chat (privateChatMembers is not empty)
+                        if(chat.privateChatMembers.isNotEmpty()) {
+                            // Only show if current user is a participant
+                            chat.privateChatMembers.contains(currentUser?.id)
+                        } else {
+                            // It's a group chat (privateChatMembers is empty)
+                            // Show if user is admin OR user's segment matches chat's segment
+                            currentUser?.roles?.contains("ROLE_ADMIN") == true ||
+                                    currentUser?.segment == chat.segment
+                        }
+                    }
+
+                    val updatedChats = filteredChats.map { chat ->
+                        if(chat.privateChatMembers.contains(currentUser?.id)){
+                            val otherUserId = chat.privateChatMembers.first { it != currentUser?.id }
+                            val tempUserModel: UserModel = usersService.getUser(otherUserId)
+                            chat.copy(name = tempUserModel.name)
+                        } else {
+                            chat
+                        }
+                    }
+                    conversas.value = updatedChats
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
 
             }
             else -> Unit
@@ -151,7 +178,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ConversationScreen+"/"+item.id+"/"+item.name+"/"+userNome)
+                                navController.navigate(Routes.ConversationScreen+"/"+item.id+"/"+item.name+"/")
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 

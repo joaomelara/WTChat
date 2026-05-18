@@ -34,11 +34,10 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
             NavScreen(navController, authViewModel)
         }
 
-        composable(Routes.ConversationScreen + "/{chatId}/{chatNome}/{userNome}") {
+        composable(Routes.ConversationScreen + "/{chatId}/{chatNome}") {
             val chatId = it.arguments?.getString("chatId") ?: "Error"
             val chatNome = it.arguments?.getString("chatNome") ?: "Unnamed Chat"
-            val userNome = it.arguments?.getString("userNome") ?: "Anônimo"
-            ConversationScreen(navController, authViewModel, chatId, chatNome, userNome)
+            ConversationScreen(navController, authViewModel, chatId, chatNome)
         }
 
         composable(Routes.ParticipantsScreen + "/{chatId}") {
