@@ -82,8 +82,10 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                         val segment = chat.value.segment.replace("SEGMENT_", "")
                         users.value = usersService.getUsersBySegment(segment)
                     } else if(chat.value.privateChatMembers.isNotEmpty()) {
-                        chat.value.privateChatMembers.filter {
-                            it != userId
+                        chat.value.privateChatMembers.forEach {
+                            if(it != userId) {
+                                users.value += usersService.getUserById(it)
+                            }
                         }
                     }
                 } catch (e: Exception) {
