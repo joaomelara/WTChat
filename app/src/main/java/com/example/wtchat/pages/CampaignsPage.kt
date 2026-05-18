@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -148,6 +149,9 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                         ) { campaign ->
                             CampaignCard(
                                 campaign = campaign,
+                                onEditClick = {
+                                    navController.navigate(Routes.EditCampaignScreen + "/${campaign.id}")
+                                },
                                 onDeleteClick = {
                                     coroutineScope.launch {
                                         try {
@@ -170,6 +174,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
 @Composable
 fun CampaignCard(
     campaign: CampaignModel,
+    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -188,8 +193,8 @@ fun CampaignCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
+                // Conteúdo principal
                 Column(modifier = Modifier.weight(1f)) {
-
                     Text(
                         text = campaign.title,
                         style = MaterialTheme.typography.titleMedium,
@@ -226,7 +231,7 @@ fun CampaignCard(
                             color = WTCOrange
                         )
                         Text(
-                            text = "Por: ${campaign.createdBy}",
+                            text = "Por: ${campaign.createdBy ?: "N/A"}",
                             style = MaterialTheme.typography.labelSmall,
                             color = WTCOrange
                         )
@@ -242,16 +247,30 @@ fun CampaignCard(
                     }
                 }
 
-                IconButton(
-                    onClick = onDeleteClick,
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Delete,
-                        contentDescription = "Deletar campanha",
-                        tint = Color.Red,
-                        modifier = Modifier.size(24.dp)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = onEditClick,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Edit,
+                            contentDescription = "Editar campanha",
+                            tint = WTCBlue,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onDeleteClick,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = "Deletar campanha",
+                            tint = Color.Red,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
