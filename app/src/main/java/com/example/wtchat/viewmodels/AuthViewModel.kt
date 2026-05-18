@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.wtchat.api.RetrofitInstance
+import com.example.wtchat.models.MessageModel
 import com.example.wtchat.models.SignInRequest
 import com.example.wtchat.models.SignUpRequest
 import com.example.wtchat.models.UserModel
@@ -98,6 +99,16 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 println("Signup error: ${e.message}")
                 _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
             }
+        }
+    }
+
+    fun sendMessage( message: MessageModel){
+        viewModelScope.launch {
+                try {
+                    RetrofitInstance.getInstance().messagesService.sendMessage(message)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
         }
     }
 

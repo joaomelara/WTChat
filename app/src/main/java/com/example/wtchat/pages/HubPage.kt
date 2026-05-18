@@ -178,7 +178,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ConversationScreen+"/"+item.id+"/"+item.name+"/")
+                                navController.navigate(Routes.ConversationScreen+"/"+item.id+"/"+item.name)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 
