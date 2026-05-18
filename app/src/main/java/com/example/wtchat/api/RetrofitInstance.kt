@@ -11,7 +11,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 class RetrofitInstance private constructor(context: Context) {
     companion object {
 
-        private const val BASE_URL = "http://192.168.x.x:8080/"  // Para emulador: 10.0.2.2, para device: use IP real
+        private const val BASE_URL = "http://192.168.15.4:8080/"  // Para emulador: 10.0.2.2, para device: use IP real
         private var instance: RetrofitInstance? = null
 
         fun initialize(context: Context) {
@@ -53,5 +53,6 @@ class RetrofitInstance private constructor(context: Context) {
     val messagesService: MessagesService = retrofit.create(MessagesService::class.java)
     val chatsService: ChatsService = retrofit.create(ChatsService::class.java)
     val usersService: UsersService = retrofit.create(UsersService::class.java)
+    val campaignService: CampaignService = retrofit.create(CampaignService::class.java)
 }
 

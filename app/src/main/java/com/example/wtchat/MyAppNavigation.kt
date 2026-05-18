@@ -52,5 +52,6 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
             ProfilePage(navController, authViewModel, "Participants", userId, userName)
         }
 
+
     })
 }

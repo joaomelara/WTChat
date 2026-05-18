@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import com.example.wtchat.pages.HubPage
 import com.example.wtchat.pages.ProfilePage
 import com.example.wtchat.pages.SettingsPage
+import com.example.wtchat.pages.CampaignsPage // <-- import adicionado
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Notifications // <-- import adicionado
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -57,6 +59,7 @@ fun NavScreen(navController: NavController, authViewModel: AuthViewModel){
 
     val navItemList = listOf(
         NavItem("Home", Icons.Rounded.Home),
+        NavItem("Campaigns", Icons.Rounded.Notifications),
         NavItem("Profile", Icons.Rounded.Person),
         NavItem("Settings", Icons.Rounded.Settings)
     )
@@ -89,14 +92,14 @@ fun NavScreen(navController: NavController, authViewModel: AuthViewModel){
         }
     }
 }
+
 @Composable
 fun ContentScreen(
     modifier: Modifier = Modifier,
     selectedIndex: Int,
-    navController: NavController ,
+    navController: NavController,
     authViewModel: AuthViewModel
 ) {
-
     val context = LocalContext.current
     val tokenManager = TokenManager(context)
     val userId = tokenManager.getUser()?.id!!
@@ -104,8 +107,9 @@ fun ContentScreen(
     Box(modifier = modifier.fillMaxSize()) {
         when (selectedIndex) {
             0 -> HubPage(navController, authViewModel)
-            1 -> ProfilePage(navController, authViewModel, "Hub", userId)
-            2 -> SettingsPage(navController, authViewModel)
+            1 -> CampaignsPage(navController, authViewModel)
+            2 -> ProfilePage(navController, authViewModel, "Hub", userId)
+            3 -> SettingsPage(navController, authViewModel)
         }
     }
 }
@@ -124,7 +128,7 @@ fun FloatingBottomBar(
 ) {
     Box(
         modifier = modifier
-            .width(220.dp)
+            .width(290.dp)
             .height(70.dp)
             .clip(RoundedCornerShape(40.dp))
             .background(WTCGrey)

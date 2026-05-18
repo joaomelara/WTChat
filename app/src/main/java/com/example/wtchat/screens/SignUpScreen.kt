@@ -281,7 +281,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                      DropdownMenuItem(
                          text = { Text("Usuário") },
                          onClick = {
-                             selectedRole.value = "ROLE_USER"
+                             selectedRole.value = "USER"
                              expandedRole.value = false
                          }
                      )
@@ -289,14 +289,14 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                      DropdownMenuItem(
                          text = { Text("Operador") },
                          onClick = {
-                             selectedRole.value = "ROLE_ADMIN"
+                             selectedRole.value = "ADMIN"
                              expandedRole.value = false
                          }
                      )
                  }
              }
 
-            if(selectedRole.value != "ROLE_ADMIN"){
+            if(selectedRole.value != "ADMIN"){
                 Spacer(modifier = Modifier.height(20.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Button(
