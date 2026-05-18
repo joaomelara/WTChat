@@ -87,6 +87,16 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
         mutableStateOf<List<MessageModel>>(emptyList())
     }
 
+    val incomingMessage = authViewModel.wsMessages.observeAsState().value
+
+    LaunchedEffect(incomingMessage) {
+        incomingMessage?.let { newMessage ->
+            if (mensagens.value.none { it.id.isNotEmpty() && it.id == newMessage.id }) {
+                mensagens.value = mensagens.value + newMessage
+            }
+        }
+    }
+
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate(Routes.LoginScreen){
@@ -113,14 +123,6 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
     LaunchedEffect(Unit) {
         authViewModel.connectWebSocket(chatId)
     }
-
-// Add observer for incoming WebSocket messages
-    LaunchedEffect(authViewModel.wsMessages.observeAsState()) {
-        authViewModel.wsMessages.observeAsState().value?.let { newMessage ->
-            mensagens.value = mensagens.value + newMessage
-        }
-    }
-
 
 // Cleanup on leave
     DisposableEffect(Unit) {
@@ -215,10 +217,10 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                     val messageLocalDateTime = LocalDateTime.now()
                     val messageDate = messageLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-                    val message = MessageModel(author = userId, username = userNome, message = novaMensagem.value)
+                    val message = MessageModel(author = userId, username = userNome, message = novaMensagem.value, groupId = chatId)
 
                     // Send via WebSocket instead of REST
-                    authViewModel.sendMessageWebSocket(chatId, message)
+                    authViewModel.sendMessageWebSocket(message)
                     novaMensagem.value = ""
                 },
             ) {

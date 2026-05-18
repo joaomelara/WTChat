@@ -117,7 +117,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Add method to send message via WebSocket
-    fun sendMessageWebSocket(chatId: String, message: MessageModel) {
+    fun sendMessageWebSocket(message: MessageModel) {
         webSocketManager.sendMessage(message)
     }
 

@@ -18,14 +18,14 @@ class ChatWebSocketManager {
     val connectionStatus = MutableLiveData<WebSocketStatus>()
 
     fun connect(token: String) {
-        val url = "ws://192.168.x.x:8080/chat"
+        val url = "ws://192.168.15.30:8080/chat"
         val request = Request.Builder()
             .url(url)
             .addHeader("Authorization", "Bearer $token")
             .build()
 
         webSocket = client.newWebSocket(request, ChatWebSocketListener())
-        connectionStatus.value = WebSocketStatus.Connecting
+        connectionStatus.postValue(WebSocketStatus.Connecting)
     }
 
     fun sendMessage(message: MessageModel) {
@@ -40,29 +40,30 @@ class ChatWebSocketManager {
     fun disconnect() {
         webSocket?.close(1000, "Normal closure")
         webSocket = null
-        connectionStatus.value = WebSocketStatus.Disconnected
+        connectionStatus.postValue(WebSocketStatus.Disconnected)
     }
 
     private inner class ChatWebSocketListener : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
-            connectionStatus.value = WebSocketStatus.Connected
+            println("WebSocket connected")
+            connectionStatus.postValue(WebSocketStatus.Connected)
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             try {
                 val message = json.decodeFromString(MessageModel.serializer(), text)
-                incomingMessages.value = message
+                incomingMessages.postValue(message)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
-            connectionStatus.value = WebSocketStatus.Error
+            connectionStatus.postValue(WebSocketStatus.Error)
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-            connectionStatus.value = WebSocketStatus.Disconnected
+            connectionStatus.postValue(WebSocketStatus.Disconnected)
         }
     }
 }
