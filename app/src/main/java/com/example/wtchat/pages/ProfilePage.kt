@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.wtchat.Routes
 import com.example.wtchat.api.RetrofitInstance
+import com.example.wtchat.models.AnnotationModel
 import com.example.wtchat.models.UserModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
@@ -46,7 +47,7 @@ import com.example.wtchat.viewmodels.AuthViewModel
 @Composable
 fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, origin: String, userId: String, userName: String = ""){
 
-    var anotations = remember {
+    var annotations = remember {
         mutableStateOf("")
     }
 
@@ -70,6 +71,9 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
                 if (userName.isEmpty() && userId != "Error") {
                     println("Buscando usuário com ID: $userId, token user ID: $userIdStored")
                     safeUser.value = usersService.getUserById(userId)
+                }
+                if(userId != userIdStored) {
+                    annotations.value = tokenManager.getAnnotation(userId)?.annotationText ?: ""
                 }
             }
             else -> Unit
@@ -113,14 +117,15 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
 
                     Text(
                         style = MaterialTheme.typography.titleMedium,
-                        text = if (anotations.value.isNotEmpty()) "Anotações" else ""
+                        text = if (annotations.value.isNotEmpty()) "Anotações" else ""
                     )
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    value = anotations.value,
+                    value = annotations.value,
                     onValueChange = { novoValor ->
-                        anotations.value = novoValor
+                        annotations.value = novoValor
+                        tokenManager.saveAnnotation(AnnotationModel(userId, annotations.value))
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email

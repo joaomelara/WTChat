@@ -2,6 +2,7 @@ package com.example.wtchat.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.example.wtchat.models.AnnotationModel
 import com.example.wtchat.models.UserModel
 import kotlinx.serialization.json.Json
 
@@ -30,6 +31,27 @@ class TokenManager(context: Context) {
             } catch (e: Exception) {
                 null
             }
+        }
+    }
+
+    fun saveAnnotation(annotation: AnnotationModel) {
+        sharedPreferences.edit().apply {
+            if (annotation.annotationText.isEmpty()) {
+                remove("annotation_${annotation.userId}")
+            } else {
+                val annotationJson = json.encodeToString(AnnotationModel.serializer(), annotation)
+                putString("annotation_${annotation.userId}", annotationJson)
+            }
+            apply()
+        }
+    }
+
+    fun getAnnotation(userId: String): AnnotationModel? {
+        val annotationJson = sharedPreferences.getString("annotation_$userId", null) ?: return null
+        return try {
+            json.decodeFromString(AnnotationModel.serializer(), annotationJson)
+        } catch (e: Exception) {
+            null
         }
     }
 
