@@ -1,7 +1,5 @@
 package com.example.wtchat.pages
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,7 +12,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -26,7 +23,6 @@ import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.ui.theme.WTCOrange
-import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
@@ -34,23 +30,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
 
-    var campaigns = remember {
-        mutableStateOf<List<CampaignModel>>(emptyList())
-    }
-
-    var isLoading = remember {
-        mutableStateOf(false)
-    }
-
-    var selectedCampaign = remember {
-        mutableStateOf<CampaignModel?>(null)
-    }
+    val campaigns = remember { mutableStateOf<List<CampaignModel>>(emptyList()) }
+    val isLoading = remember { mutableStateOf(false) }
+    val errorMessage = remember { mutableStateOf<String?>(null) }
 
     val campaignService = RetrofitInstance.getInstance().campaignService
-    val context = LocalContext.current
-    val tokenManager = TokenManager(context)
     val coroutineScope = rememberCoroutineScope()
-
     val authState = authViewModel.authState.observeAsState()
 
     LaunchedEffect(authState.value) {
@@ -60,9 +45,11 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
             }
             is AuthState.Authenticated -> {
                 isLoading.value = true
+                errorMessage.value = null
                 try {
                     campaigns.value = campaignService.getCampaigns()
                 } catch (e: Exception) {
+                    errorMessage.value = "Erro ao carregar campanhas"
                     println("Erro ao carregar campanhas: ${e.message}")
                 } finally {
                     isLoading.value = false
@@ -79,13 +66,11 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Title
             Text(
                 text = "Campanhas",
                 style = MaterialTheme.typography.titleLarge,
@@ -95,31 +80,86 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            if (isLoading.value) {
-                CircularProgressIndicator(color = WTCBlue)
-            } else if (campaigns.value.isEmpty()) {
-                Text(
-                    text = "Nenhuma campanha disponível",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = WTCGrey
-                )
-            } else {
-                LazyColumn {
-                    items(campaigns.value) { campaign ->
-                        CampaignCard(
-                            campaign = campaign,
-                            onDeleteClick = {
-                                coroutineScope.launch {
-                                    try {
-                                        campaignService.deleteCampaign(campaign.id)
-                                        campaigns.value = campaignService.getCampaigns()
-                                    } catch (e: Exception) {
-                                        println("Erro ao deletar campanha: ${e.message}")
+            when {
+                isLoading.value -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = WTCBlue)
+                    }
+                }
+
+                errorMessage.value != null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = errorMessage.value!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Red
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Button(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        isLoading.value = true
+                                        errorMessage.value = null
+                                        try {
+                                            campaigns.value = campaignService.getCampaigns()
+                                        } catch (e: Exception) {
+                                            errorMessage.value = "Erro ao carregar campanhas"
+                                        } finally {
+                                            isLoading.value = false
+                                        }
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = WTCBlue)
+                            ) {
+                                Text("Tentar novamente")
+                            }
+                        }
+                    }
+                }
+
+                campaigns.value.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Nenhuma campanha disponível",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = WTCGrey
+                        )
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                        contentPadding = PaddingValues(bottom = 20.dp)
+                    ) {
+                        items(
+                            items = campaigns.value,
+                            key = { it.id }
+                        ) { campaign ->
+                            CampaignCard(
+                                campaign = campaign,
+                                onDeleteClick = {
+                                    coroutineScope.launch {
+                                        try {
+                                            campaignService.deleteCampaign(campaign.id)
+                                            campaigns.value = campaignService.getCampaigns()
+                                        } catch (e: Exception) {
+                                            println("Erro ao deletar campanha: ${e.message}")
+                                        }
                                     }
                                 }
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(15.dp))
+                            )
+                        }
                     }
                 }
             }
@@ -134,9 +174,7 @@ fun CampaignCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { },
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
         colors = CardDefaults.cardColors(containerColor = WTCGrey)
     ) {
@@ -150,9 +188,8 @@ fun CampaignCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
+
                     Text(
                         text = campaign.title,
                         style = MaterialTheme.typography.titleMedium,
@@ -160,7 +197,7 @@ fun CampaignCard(
                         color = WTCBlue
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
                         text = campaign.subtitle,
@@ -168,7 +205,7 @@ fun CampaignCard(
                         color = Color.Gray
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
                         text = campaign.description,
@@ -177,7 +214,7 @@ fun CampaignCard(
                         maxLines = 2
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -188,11 +225,19 @@ fun CampaignCard(
                             style = MaterialTheme.typography.labelSmall,
                             color = WTCOrange
                         )
-
                         Text(
                             text = "Por: ${campaign.createdBy}",
                             style = MaterialTheme.typography.labelSmall,
                             color = WTCOrange
+                        )
+                    }
+
+                    if (campaign.segments.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Segmentos: ${campaign.segments.joinToString(", ") { it.removePrefix("SEGMENT_") }}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = WTCBlue
                         )
                     }
                 }
@@ -212,4 +257,3 @@ fun CampaignCard(
         }
     }
 }
-
