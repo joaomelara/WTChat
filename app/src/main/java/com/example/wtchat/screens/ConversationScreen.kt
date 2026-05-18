@@ -91,8 +91,9 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
 
     LaunchedEffect(incomingMessage) {
         incomingMessage?.let { newMessage ->
+            if (newMessage.groupId != chatId) return@let
             if (mensagens.value.none { it.id.isNotEmpty() && it.id == newMessage.id }) {
-                mensagens.value = mensagens.value + newMessage
+                mensagens.value += newMessage
             }
         }
     }
