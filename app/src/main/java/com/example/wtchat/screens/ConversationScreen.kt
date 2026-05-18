@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
@@ -106,6 +107,25 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
     LaunchedEffect(mensagens.value) {
         if(mensagens.value.isNotEmpty()){
             listState.animateScrollToItem(mensagens.value.lastIndex)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        authViewModel.connectWebSocket(chatId)
+    }
+
+// Add observer for incoming WebSocket messages
+    LaunchedEffect(authViewModel.wsMessages.observeAsState()) {
+        authViewModel.wsMessages.observeAsState().value?.let { newMessage ->
+            mensagens.value = mensagens.value + newMessage
+        }
+    }
+
+
+// Cleanup on leave
+    DisposableEffect(Unit) {
+        onDispose {
+            authViewModel.webSocketManager.disconnect()
         }
     }
 
@@ -192,9 +212,13 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
             IconButton(
                 modifier = Modifier.background(WTCBlue, RoundedCornerShape(100.dp)),
                 onClick = {
+                    val messageLocalDateTime = LocalDateTime.now()
+                    val messageDate = messageLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-                    val message = MessageModel(author = userId, username = userNome, message = novaMensagem.value, groupId = chatId)
-                    authViewModel.sendMessage(message)
+                    val message = MessageModel(author = userId, username = userNome, message = novaMensagem.value)
+
+                    // Send via WebSocket instead of REST
+                    authViewModel.sendMessageWebSocket(chatId, message)
                     novaMensagem.value = ""
                 },
             ) {
