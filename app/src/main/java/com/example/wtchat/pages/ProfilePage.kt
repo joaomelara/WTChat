@@ -1,16 +1,20 @@
 package com.example.wtchat.pages
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
@@ -45,7 +49,7 @@ import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 
 @Composable
-fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, origin: String, userId: String, userName: String = ""){
+fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, userId: String){
 
     var annotations = remember {
         mutableStateOf("")
@@ -53,6 +57,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
 
     var context = LocalContext.current
     val tokenManager = TokenManager(context)
+    val localUser = tokenManager.getUser()
     val authState = authViewModel.authState.observeAsState()
     val usersService = RetrofitInstance.getInstance().usersService
 
@@ -68,12 +73,15 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
             is AuthState.Authenticated -> {
-                if (userName.isEmpty() && userId != "Error") {
-                    println("Buscando usuário com ID: $userId, token user ID: $userIdStored")
-                    safeUser.value = usersService.getUserById(userId)
-                }
-                if(userId != userIdStored) {
-                    annotations.value = tokenManager.getAnnotation(userId)?.annotationText ?: ""
+                if (userId != userIdStored) {
+                    try {
+                        annotations.value = tokenManager.getAnnotation(userId)?.annotationText ?: ""
+                        safeUser.value = usersService.getUserById(userId)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                } else {
+                    safeUser.value = localUser!!
                 }
             }
             else -> Unit
@@ -87,7 +95,8 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(20.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(20.dp))
@@ -102,7 +111,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
             Spacer(modifier = Modifier.height(25.dp))
             Text(
                 style = MaterialTheme.typography.titleLarge,
-                text = userName.ifEmpty { safeUser.value.name }
+                text = safeUser.value.name
             )
             Spacer(modifier = Modifier.height(8.dp))
             Box(
@@ -112,13 +121,66 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, orig
                     .height(4.dp)
                     .background(WTCOrange, shape = RoundedCornerShape(50.dp))
             )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                style = MaterialTheme.typography.titleMedium,
+                text = safeUser.value.email
+            )
             Spacer(modifier = Modifier.height(40.dp))
+            Text(
+                style = MaterialTheme.typography.titleMedium,
+                text = "Informações"
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(WTCGrey, RoundedCornerShape(20.dp))
+                    .padding(20.dp),
+            ){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        style = MaterialTheme.typography.titleMedium,
+                        text = "CRM:"
+                    )
+                    Text(
+                        style = MaterialTheme.typography.titleMedium,
+                        text = safeUser.value.username
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        style = MaterialTheme.typography.titleMedium,
+                        text = "Segmento:"
+                    )
+                    val segment = safeUser.value.segment
+                    Text(
+                        style = MaterialTheme.typography.titleMedium,
+                        text = when (segment.replace("SEGMENT_", "")) {
+                            "RETAIL" -> "Varejo"
+                            "EDUCATION" -> "Educação"
+                            "FINANCE" -> "Financeiro"
+                            "TECHNOLOGY" -> "Tecnologia"
+                            "HEALTHCARE" -> "Saúde"
+                            else -> "Comum"
+                        }
+                    )
+                }
+            }
             if(userId != userIdStored){
-
+                    Spacer(modifier = Modifier.height(30.dp))
                     Text(
                         style = MaterialTheme.typography.titleMedium,
                         text = if (annotations.value.isNotEmpty()) "Anotações" else ""
                     )
+                Spacer(modifier = Modifier.height(5.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),

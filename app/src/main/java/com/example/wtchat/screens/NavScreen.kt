@@ -104,7 +104,7 @@ fun ContentScreen(
     Box(modifier = modifier.fillMaxSize()) {
         when (selectedIndex) {
             0 -> HubPage(navController, authViewModel)
-            1 -> ProfilePage(navController, authViewModel, "Hub", userId)
+            1 -> ProfilePage(navController, authViewModel, userId)
             2 -> SettingsPage(navController, authViewModel)
         }
     }

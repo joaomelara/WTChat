@@ -182,11 +182,13 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                 )
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             LazyColumn {
+                var count = 0
                 items(users.value) { item ->
-                    Spacer(modifier = Modifier.height(15.dp))
+                    count++
+                    Spacer(modifier = Modifier.height(30.dp))
 
                     Row(
                         modifier = Modifier
@@ -235,9 +237,8 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                 )
                             }
                         }
-
                     }
-                    Spacer(modifier = Modifier.height(15.dp))
+                    if(count == users.value.size) Spacer(modifier = Modifier.height(30.dp))
                 }
             }
 

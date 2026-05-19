@@ -53,7 +53,7 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
         composable(Routes.ProfilePage + "/{userId}/{userName}") {
             val userId = it.arguments?.getString("userId") ?: "Error"
             val userName = it.arguments?.getString("userName") ?: ""
-            ProfilePage(navController, authViewModel, "Participants", userId, userName)
+            ProfilePage(navController, authViewModel, userId)
         }
 
     })

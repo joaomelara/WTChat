@@ -114,7 +114,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(top = 20.dp, start = 20.dp, end = 20.dp, bottom = 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -166,7 +166,9 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
             Spacer(modifier = Modifier.height(15.dp))
 
             LazyColumn {
+                var count = 0
                 items(conversas.value) { item ->
+                    count++
                     Spacer(modifier = Modifier.height(30.dp))
 
                     Row(
@@ -193,6 +195,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                         )
 
                     }
+                    if(count == conversas.value.size) Spacer(modifier = Modifier.height(130.dp))
                 }
             }
 
