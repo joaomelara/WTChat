@@ -54,11 +54,17 @@ import com.example.wtchat.models.UserModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
+import com.example.wtchat.ui.theme.WTCLightBlue
+import com.example.wtchat.ui.theme.WTCOrange
 import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.ArrowDown
+import compose.icons.fontawesomeicons.solid.CaretDown
+import compose.icons.fontawesomeicons.solid.CaretUp
+import compose.icons.fontawesomeicons.solid.Filter
 import compose.icons.fontawesomeicons.solid.User
 import kotlinx.coroutines.runBlocking
 import okhttp3.internal.wait
@@ -75,6 +81,10 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
     val usersService = RetrofitInstance.getInstance().usersService
 
     val isLoading = remember { mutableStateOf(true) }
+
+    val filterOn = remember {
+        mutableStateOf(false)
+    }
 
     var users = remember {
         mutableStateOf<List<UserModel>>(emptyList())
@@ -225,20 +235,56 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
+            Button(
+                onClick = {
+                    filterOn.value = !filterOn.value
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = WTCOrange),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                Box(
-                    modifier = Modifier.weight(1f)
+                    Text(
+                        text = "Filtros",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+
+                    if(filterOn.value) {
+                        Icon(
+                            imageVector = FontAwesomeIcons.Solid.CaretUp,
+                            contentDescription = "Arrow Up Icon",
+                            modifier = Modifier.size(28.dp),
+                            tint = WTCBackground
+                        )
+                    } else {
+                        Icon(
+                            imageVector = FontAwesomeIcons.Solid.CaretDown,
+                            contentDescription = "Arrow Down Icon",
+                            modifier = Modifier.size(28.dp),
+                            tint = WTCBackground
+                        )
+                    }
+
+                }
+            }
+
+            if(filterOn.value) {
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
-                    Button(
-                        onClick = {
-                            expandedRole.value = !expandedRole.value
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
-                        shape = RoundedCornerShape(20.dp)
+                    Box(
+                        modifier = Modifier.weight(1f)
                     ) {
+
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -251,61 +297,68 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(5.dp))
-                            Text(
-                                text = when(selectedRole.value){
-                                    "ADMIN" -> "Operador"
-                                    "USER" -> "Usuário"
-                                    else -> "Todos"
+                            Button(
+                                onClick = {
+                                    expandedRole.value = !expandedRole.value
                                 },
-                                color = Color.Black,
-                                textAlign = TextAlign.Center
+                                colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
+                                shape = RoundedCornerShape(20.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = when (selectedRole.value) {
+                                            "ADMIN" -> "Operador"
+                                            "USER" -> "Usuário"
+                                            else -> "Todos"
+                                        },
+                                        color = Color.Black,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+
+                        DropdownMenu(
+                            expanded = expandedRole.value,
+                            onDismissRequest = { expandedRole.value = false },
+                            modifier = Modifier.fillMaxWidth(0.9f)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Todos") },
+                                onClick = {
+                                    selectedRole.value = ""
+                                    expandedRole.value = false
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Usuário") },
+                                onClick = {
+                                    selectedRole.value = "USER"
+                                    expandedRole.value = false
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Operador") },
+                                onClick = {
+                                    selectedRole.value = "ADMIN"
+                                    expandedRole.value = false
+                                }
                             )
                         }
                     }
 
-                    DropdownMenu(
-                        expanded = expandedRole.value,
-                        onDismissRequest = { expandedRole.value = false },
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                    Spacer(modifier = Modifier.size(15.dp))
+
+                    Box(
+                        modifier = Modifier.weight(1f)
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Todos") },
-                            onClick = {
-                                selectedRole.value = ""
-                                expandedRole.value = false
-                            }
-                        )
 
-                        DropdownMenuItem(
-                            text = { Text("Usuário") },
-                            onClick = {
-                                selectedRole.value = "USER"
-                                expandedRole.value = false
-                            }
-                        )
-
-                        DropdownMenuItem(
-                            text = { Text("Operador") },
-                            onClick = {
-                                selectedRole.value = "ADMIN"
-                                expandedRole.value = false
-                            }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.size(15.dp))
-
-                Box(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Button(
-                        onClick = {
-                            expandedSegment.value = !expandedSegment.value
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
-                        shape = RoundedCornerShape(20.dp),
-                    ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -317,50 +370,67 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
-
                             Spacer(modifier = Modifier.height(5.dp))
-                            Text(
-                                text = when (selectedSegment.value) {
-                                    "RETAIL" -> "Varejo"
-                                    "EDUCATION" -> "Educação"
-                                    "FINANCE" -> "Financeiro"
-                                    "TECHNOLOGY" -> "Tecnologia"
-                                    "HEALTHCARE" -> "Saúde"
-                                    else -> "Todos"
-                                },
-                                color = Color.Black,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-
-                    DropdownMenu(
-                        expanded = expandedSegment.value,
-                        onDismissRequest = { expandedSegment.value = false },
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        listOf(
-                            "",
-                            "RETAIL",
-                            "HEALTHCARE",
-                            "EDUCATION",
-                            "FINANCE",
-                            "TECHNOLOGY"
-                        ).forEach { seg ->
-                            DropdownMenuItem(
-                                text = { Text(when(seg) {
-                                    "RETAIL" -> "Varejo"
-                                    "EDUCATION" -> "Educação"
-                                    "FINANCE" -> "Financeiro"
-                                    "TECHNOLOGY" -> "Tecnologia"
-                                    "HEALTHCARE" -> "Saúde"
-                                    else -> "Todos"
-                                })},
+                            Button(
                                 onClick = {
-                                    selectedSegment.value = seg
-                                    expandedSegment.value = false
+                                    expandedSegment.value = !expandedSegment.value
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
+                                shape = RoundedCornerShape(20.dp),
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = when (selectedSegment.value) {
+                                            "RETAIL" -> "Varejo"
+                                            "EDUCATION" -> "Educação"
+                                            "FINANCE" -> "Financeiro"
+                                            "TECHNOLOGY" -> "Tecnologia"
+                                            "HEALTHCARE" -> "Saúde"
+                                            else -> "Todos"
+                                        },
+                                        color = Color.Black,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
-                            )
+                            }
+                        }
+
+                        DropdownMenu(
+                            expanded = expandedSegment.value,
+                            onDismissRequest = { expandedSegment.value = false },
+                            modifier = Modifier.fillMaxWidth(0.9f)
+                        ) {
+                            listOf(
+                                "",
+                                "RETAIL",
+                                "HEALTHCARE",
+                                "EDUCATION",
+                                "FINANCE",
+                                "TECHNOLOGY"
+                            ).forEach { seg ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            when (seg) {
+                                                "RETAIL" -> "Varejo"
+                                                "EDUCATION" -> "Educação"
+                                                "FINANCE" -> "Financeiro"
+                                                "TECHNOLOGY" -> "Tecnologia"
+                                                "HEALTHCARE" -> "Saúde"
+                                                else -> "Todos"
+                                            }
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedSegment.value = seg
+                                        expandedSegment.value = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -371,7 +441,7 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
             if(!isLoading.value && users.value.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(30.dp),
-                    contentPadding = PaddingValues(top = 30.dp,bottom = 125.dp)
+                    contentPadding = PaddingValues(top = 30.dp,bottom = 30.dp)
                 ) {
                     items(users.value) { item ->
                         Row(
