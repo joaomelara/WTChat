@@ -80,10 +80,13 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
             }
             is AuthState.Authenticated -> {
                 try {
+                    val allUsers = usersService.getAllUsers()
                     chat.value = chatsService.getChatById(chatId)
                     if(chat.value.privateChatMembers.isEmpty()) {
                         val segment = chat.value.segment.replace("SEGMENT_", "")
-                        users.value = usersService.getUsersBySegment(segment)
+                        users.value = allUsers.filter { user ->
+                            user.segment.contains(segment) || user.roles.contains("ROLE_ADMIN")
+                        }
                     } else if(chat.value.privateChatMembers.isNotEmpty()) {
                         chat.value.privateChatMembers.forEach {
                             if(it != userId) {
@@ -140,11 +143,18 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
 
                         Spacer(modifier = Modifier.size(20.dp))
 
-                        Text(
-                            style = MaterialTheme.typography.titleMedium,
-                            text = item.name
-                        )
-
+                        Column {
+                            Text(
+                                style = MaterialTheme.typography.titleMedium,
+                                text = item.name + if(userId == item.id) " (Você)" else ""
+                            )
+                            if(item.roles.contains("ROLE_ADMIN")) {
+                                Text(
+                                    style = MaterialTheme.typography.bodySmall,
+                                    text = "Operador"
+                                )
+                            }
+                        }
                     }
                 }
             }
