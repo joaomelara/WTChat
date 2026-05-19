@@ -156,22 +156,33 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, user
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    if(!safeUser.value.roles.contains("ROLE_ADMIN")) {
                     Text(
                         style = MaterialTheme.typography.titleMedium,
                         text = "Segmento:"
                     )
                     val segment = safeUser.value.segment
-                    Text(
-                        style = MaterialTheme.typography.titleMedium,
-                        text = when (segment.replace("SEGMENT_", "")) {
-                            "RETAIL" -> "Varejo"
-                            "EDUCATION" -> "Educação"
-                            "FINANCE" -> "Financeiro"
-                            "TECHNOLOGY" -> "Tecnologia"
-                            "HEALTHCARE" -> "Saúde"
-                            else -> "Comum"
-                        }
-                    )
+                        Text(
+                            style = MaterialTheme.typography.titleMedium,
+                            text = when (segment.replace("SEGMENT_", "")) {
+                                "RETAIL" -> "Varejo"
+                                "EDUCATION" -> "Educação"
+                                "FINANCE" -> "Financeiro"
+                                "TECHNOLOGY" -> "Tecnologia"
+                                "HEALTHCARE" -> "Saúde"
+                                else -> ""
+                            }
+                        )
+                    } else {
+                        Text(
+                            style = MaterialTheme.typography.titleMedium,
+                            text = "Cargo:"
+                        )
+                        Text(
+                            style = MaterialTheme.typography.titleMedium,
+                            text = "Operador"
+                        )
+                    }
                 }
             }
             if(userId != userIdStored){

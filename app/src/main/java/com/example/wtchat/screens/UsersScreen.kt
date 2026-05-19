@@ -218,17 +218,24 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    style = MaterialTheme.typography.bodySmall,
-                                    text = when (item.segment.replace("SEGMENT_", "")) {
-                                        "RETAIL" -> "Varejo"
-                                        "EDUCATION" -> "Educação"
-                                        "FINANCE" -> "Financeiro"
-                                        "TECHNOLOGY" -> "Tecnologia"
-                                        "HEALTHCARE" -> "Saúde"
-                                        else -> "Comum"
-                                    }
-                                )
+                                if(!item.roles.contains("ROLE_ADMIN")) {
+                                    Text(
+                                        style = MaterialTheme.typography.bodySmall,
+                                        text = when (item.segment.replace("SEGMENT_", "")) {
+                                            "RETAIL" -> "Varejo"
+                                            "EDUCATION" -> "Educação"
+                                            "FINANCE" -> "Financeiro"
+                                            "TECHNOLOGY" -> "Tecnologia"
+                                            "HEALTHCARE" -> "Saúde"
+                                            else -> "Comum"
+                                        }
+                                    )
+                                } else {
+                                    Text(
+                                        style = MaterialTheme.typography.bodySmall,
+                                        text = "Operador"
+                                    )
+                                }
                                 Text(
                                     style = MaterialTheme.typography.bodySmall,
                                     text = "CRM: "+ item.username
