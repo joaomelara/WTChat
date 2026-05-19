@@ -34,10 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.wtchat.Routes
+import com.example.wtchat.api.RetrofitInstance
+import com.example.wtchat.models.ChatModel
 import com.example.wtchat.models.MessageModel
 import com.example.wtchat.models.UserModel
 import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
+import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
@@ -46,9 +49,14 @@ import com.google.firebase.firestore.firestore
 
 @Composable
 fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String){
-    var context = LocalContext.current
 
-    val userId = FirebaseAuth.getInstance().currentUser?.uid!!
+    var context = LocalContext.current
+    val tokenManager = TokenManager(context)
+    val userNome = tokenManager.getUser()?.name ?: "Error"
+    val userId = tokenManager.getUser()?.id ?: "Error"
+
+    val usersService = RetrofitInstance.getInstance().usersService
+    val chatsService = RetrofitInstance.getInstance().chatsService
 
     val authState = authViewModel.authState.observeAsState()
 
@@ -56,26 +64,33 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
         mutableStateOf<List<UserModel>>(emptyList())
     }
 
+    var chat = remember {
+        mutableStateOf<ChatModel>(ChatModel())
+    }
+
+
+
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate(Routes.LoginScreen){
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
             is AuthState.Authenticated -> {
-                Firebase.firestore.collection("chats").document(chatId).get().addOnCompleteListener {
-                        if(it.isSuccessful) {
-                            val userIds = it.result.get("participantes") as List<String>
-                            Firebase.firestore.collection("users").whereIn("uid", userIds)
-                                .get().addOnCompleteListener { it2 ->
-                                    if(it2.isSuccessful) {
-                                        val results = it2.result.documents.mapNotNull { doc ->
-                                            doc.toObject(UserModel::class.java)
-                                        }
-                                        users.value = results
-                                    }
-                                }
+                try {
+                    chat.value = chatsService.getChatById(chatId)
+                    if(chat.value.privateChatMembers.isEmpty()) {
+                        val segment = chat.value.segment.replace("SEGMENT_", "")
+                        users.value = usersService.getUsersBySegment(segment)
+                    } else if(chat.value.privateChatMembers.isNotEmpty()) {
+                        chat.value.privateChatMembers.forEach {
+                            if(it != userId) {
+                                users.value += usersService.getUserById(it)
+                            }
                         }
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             else -> Unit
         }
@@ -107,7 +122,7 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ProfilePage+"/"+item.uid+"/"+item.nome)
+                                navController.navigate(Routes.ProfilePage+"/"+item.id+"/"+item.name)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 
@@ -124,7 +139,7 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
 
                         Text(
                             style = MaterialTheme.typography.titleMedium,
-                            text = item.nome
+                            text = item.name
                         )
 
                     }

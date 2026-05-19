@@ -11,6 +11,7 @@ import com.example.wtchat.screens.LoadingScreen
 import com.example.wtchat.screens.LoginScreen
 import com.example.wtchat.screens.ParticipantsScreen
 import com.example.wtchat.screens.SignUpScreen
+import com.example.wtchat.screens.UsersScreen
 import com.example.wtchat.viewmodels.AuthViewModel
 
 @Composable
@@ -34,11 +35,14 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
             NavScreen(navController, authViewModel)
         }
 
-        composable(Routes.ConversationScreen + "/{chatId}/{chatNome}/{userNome}") {
+        composable(Routes.UsersScreen) {
+            UsersScreen(navController, authViewModel)
+        }
+
+        composable(Routes.ConversationScreen + "/{chatId}/{chatNome}") {
             val chatId = it.arguments?.getString("chatId") ?: "Error"
             val chatNome = it.arguments?.getString("chatNome") ?: "Unnamed Chat"
-            val userNome = it.arguments?.getString("userNome") ?: "Anônimo"
-            ConversationScreen(navController, authViewModel, chatId, chatNome, userNome)
+            ConversationScreen(navController, authViewModel, chatId, chatNome)
         }
 
         composable(Routes.ParticipantsScreen + "/{chatId}") {
@@ -49,7 +53,7 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
         composable(Routes.ProfilePage + "/{userId}/{userName}") {
             val userId = it.arguments?.getString("userId") ?: "Error"
             val userName = it.arguments?.getString("userName") ?: ""
-            ProfilePage(navController, authViewModel, "Participants", userId, userName)
+            ProfilePage(navController, authViewModel, userId)
         }
 
     })

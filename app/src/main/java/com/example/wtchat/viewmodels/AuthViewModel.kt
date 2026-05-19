@@ -1,95 +1,140 @@
 package com.example.wtchat.viewmodels
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.example.wtchat.models.ChatModel
+import androidx.lifecycle.viewModelScope
+import com.example.wtchat.api.RetrofitInstance
+import com.example.wtchat.models.MessageModel
+import com.example.wtchat.models.SignInRequest
+import com.example.wtchat.models.SignUpRequest
 import com.example.wtchat.models.UserModel
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.firestore
+import com.example.wtchat.utils.TokenManager
+import com.example.wtchat.websocket.ChatWebSocketManager
+import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val auth : FirebaseAuth = FirebaseAuth.getInstance()
-
-    private val db = Firebase.firestore
+    private val tokenManager = TokenManager(application)
+    private val authService = RetrofitInstance.getInstance().authService
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
+
+    val webSocketManager = ChatWebSocketManager()
+
+    val wsConnectionStatus = webSocketManager.connectionStatus
+    val wsMessages = webSocketManager.incomingMessages
+
+    private val _authToken = MutableLiveData<String?>()
+    val authToken: LiveData<String?> = _authToken
 
     init {
         checkAuthStatus()
     }
 
     fun checkAuthStatus(){
-        if(auth.currentUser == null) {
+        val token = tokenManager.getAccessToken()
+        if (token == null) {
             _authState.value = AuthState.Unauthenticated
         } else {
+            _authToken.value = token
             _authState.value = AuthState.Authenticated
         }
     }
 
     fun login(email: String, senha: String){
 
-        if(email.isEmpty() || senha.isEmpty()){
+        if (email.isEmpty() || senha.isEmpty()) {
             _authState.value = AuthState.Error("Por favor, preencha todos os campos.")
             return
         }
 
         _authState.value = AuthState.Loading
-        auth.signInWithEmailAndPassword(email, senha)
-            .addOnCompleteListener { task ->
-                    if(task.isSuccessful){
-                        _authState.value = AuthState.Authenticated
-                    } else {
-                        _authState.value = AuthState.Error(task.exception?.message?:"Algo deu errado, tente novamente.")
-                    }
-                }
+
+        viewModelScope.launch {
+            try {
+                val response = authService.signIn(SignInRequest(email, senha))
+                val loggedInUser = UserModel(
+                    id = response.id,
+                    username = response.username,
+                    name = response.name,
+                    email = response.email,
+                    roles = response.roles,
+                    segment = response.segment
+                )
+                tokenManager.saveToken(response.accessToken, loggedInUser)
+                _authToken.value = response.accessToken
+                _authState.value = AuthState.Authenticated
+            } catch (e: Exception) {
+                println("Login error: ${e.message}")
+                _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
+            }
+        }
     }
 
-    fun signup(crm: String, nome: String, email: String, senha: String){
+    fun signup(username: String, name: String, email: String, senha: String, segment: String, roles: Set<String>? = null){
 
-        if(email.isEmpty() || senha.isEmpty() || crm.isEmpty() || nome.isEmpty()){
+        if(email.isEmpty() || senha.isEmpty() || username.isEmpty() || name.isEmpty() || segment.isEmpty()){
             _authState.value = AuthState.Error("Por favor, preencha todos os campos.")
             return
         }
 
         _authState.value = AuthState.Loading
-        auth.createUserWithEmailAndPassword(email, senha)
-            .addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    val userId = task.result?.user?.uid!!
 
-                    val userModel = UserModel( userId,crm, nome, email)
-                    db.collection("users").document(userId).set(userModel)
-                        .addOnCompleteListener { taskdb ->
-                            if(taskdb.isSuccessful) {
-                                db.collection("chats").document("JzYJ030PVyzttr6z1B5T").update("participantes",
-                                    FieldValue.arrayUnion(userId)).addOnCompleteListener { taskdb2 ->
-                                        val usersList: List<String> = listOf("JbR1dT0317VvSCThV6R4DnsRGx53", userId)
-                                        val chatModel = ChatModel("","Conversa privada","","p",usersList)
-                                        db.collection("chats").add(chatModel).addOnCompleteListener { taskdb3 ->
-                                            if(taskdb3.isSuccessful){
-                                                val idChat = taskdb3.result.id
-                                                db.collection("chats").document(idChat).update("uid", idChat)
-                                                _authState.value = AuthState.Authenticated
-                                            }
-                                        }
-                                }
-                            } else {
-                                _authState.value = AuthState.Error(task.exception?.message?:"Algo deu errado, tente novamente.")
-                            }
-                        }
-                } else {
-                    _authState.value = AuthState.Error(task.exception?.message?:"Algo deu errado, tente novamente.")
-                }
+        viewModelScope.launch {
+            try {
+                // Send signup request
+                authService.signUp(SignUpRequest(username, name, email, senha, segment, roles))
+
+                // If signup is successful, auto-login the user
+                val response = authService.signIn(SignInRequest(email, senha))
+                val signedInUser = UserModel(
+                    id = response.id,
+                    username = response.username,
+                    name = response.name,
+                    email = response.email,
+                    roles = response.roles,
+                    segment = response.segment
+                )
+                tokenManager.saveToken(response.accessToken, signedInUser)
+                _authToken.value = response.accessToken
+                _authState.value = AuthState.Authenticated
+            } catch (e: Exception) {
+                println("Signup error: ${e.message}")
+                _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
             }
+        }
+    }
+
+    // Add method to connect WebSocket
+    fun connectWebSocket(chatId: String) {
+        val token = tokenManager.getAccessToken()
+        if (token != null) {
+            webSocketManager.connect(token)
+        }
+    }
+
+    // Add method to send message via WebSocket
+    fun sendMessageWebSocket(message: MessageModel) {
+        webSocketManager.sendMessage(message)
+    }
+
+    fun sendMessage( message: MessageModel){
+        viewModelScope.launch {
+                try {
+                    RetrofitInstance.getInstance().messagesService.sendMessage(message)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+        }
     }
 
     fun signout(){
-        auth.signOut()
+        webSocketManager.disconnect()
+        tokenManager.clearToken()
+        _authToken.value = null
         _authState.value = AuthState.Unauthenticated
     }
 

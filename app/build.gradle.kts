@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
+    kotlin("plugin.serialization") version "2.2.10"
 }
 
 android {
@@ -53,6 +54,15 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+
+    // HTTP client dependencies
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization.core)
+
     implementation(libs.androidx.material3)
     implementation("androidx.navigation:navigation-compose:${nav_version}")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
