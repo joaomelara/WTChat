@@ -47,6 +47,8 @@ import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
+import kotlinx.coroutines.runBlocking
+import okhttp3.internal.wait
 
 @Composable
 fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
@@ -63,8 +65,33 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
         mutableStateOf<List<UserModel>>(emptyList())
     }
 
+    var knownChats = remember {
+        mutableStateOf<List<ChatModel>>(emptyList())
+    }
+
     var pesquisa = remember {
         mutableStateOf("")
+    }
+
+    fun askToCreateChat(user: UserModel){
+        var response = ChatModel()
+        val chatModel = ChatModel(
+            name = "conversa",
+            segment = user.segment,
+            privateChatMembers = listOf(user.id, tokenManager.getUser()?.id!!)
+        )
+        runBlocking {
+            try {
+                response = chatsService.createChat(chatModel)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        if(response.id.isNotEmpty()) {
+            navController.navigate(Routes.ConversationScreen + "/${response.id}/${user.name}")
+        } else {
+            println("Erro ao criar conversa")
+        }
     }
 
     LaunchedEffect(authState.value, pesquisa.value) {
@@ -76,12 +103,10 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
             is AuthState.Authenticated -> {
                 val currentUser = tokenManager.getUser()
                 val allUsers = usersService.getAllUsers()
-                val updatedUsers = allUsers.filter { user ->
+                users.value = allUsers.filter { user ->
                     user.id != currentUser?.id && user.name.contains(pesquisa.value, ignoreCase = true)
                             || user.segment.contains(pesquisa.value, ignoreCase = true)
                 }
-                users.value = updatedUsers
-
             }
 
             else -> Unit
@@ -138,7 +163,10 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                     Spacer(modifier = Modifier.height(15.dp))
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .clickable(onClick = {
+                                askToCreateChat(item)
+                            }),
                         verticalAlignment = Alignment.CenterVertically,
 
                         ) {

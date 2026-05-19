@@ -1,7 +1,9 @@
 package com.example.wtchat.api
 
 import com.example.wtchat.models.ChatModel
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ChatsService {
@@ -11,4 +13,6 @@ interface ChatsService {
     suspend fun getChatsBySegment(@Path("segment") segment: String): List<ChatModel>
     @GET("api/groups/id/{chatId}")
     suspend fun getChatById(@Path("chatId") chatId: String): ChatModel
+    @POST("api/groups")
+    suspend fun createChat(@Body chat: ChatModel): ChatModel
 }
