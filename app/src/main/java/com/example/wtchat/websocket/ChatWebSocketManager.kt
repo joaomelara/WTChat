@@ -18,7 +18,7 @@ class ChatWebSocketManager {
     val connectionStatus = MutableLiveData<WebSocketStatus>()
 
     fun connect(token: String) {
-        val url = "ws://192.168.15.30:8080/chat"
+        val url = "wss://wtchat-backend.jollyfield-5dc0fa80.brazilsouth.azurecontainerapps.io/chat"
         val request = Request.Builder()
             .url(url)
             .addHeader("Authorization", "Bearer $token")
