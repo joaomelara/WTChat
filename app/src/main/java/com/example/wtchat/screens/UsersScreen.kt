@@ -2,6 +2,7 @@ package com.example.wtchat.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -74,23 +75,35 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
     }
 
     fun askToCreateChat(user: UserModel){
-        var response = ChatModel()
-        val chatModel = ChatModel(
-            name = "conversa",
-            segment = user.segment,
-            privateChatMembers = listOf(user.id, tokenManager.getUser()?.id!!)
-        )
-        runBlocking {
-            try {
-                response = chatsService.createChat(chatModel)
-            } catch (e: Exception) {
-                e.printStackTrace()
+        var hasChat = false
+        var hasChatId = ""
+        knownChats.value.forEach { chat ->
+            if(chat.privateChatMembers.contains(user.id) && chat.privateChatMembers.contains(tokenManager.getUser()?.id!!)){
+                hasChat = true
+                hasChatId = chat.id
             }
         }
-        if(response.id.isNotEmpty()) {
-            navController.navigate(Routes.ConversationScreen + "/${response.id}/${user.name}")
+        if(hasChat){
+            navController.navigate(Routes.ConversationScreen + "/${hasChatId}/${user.name}")
         } else {
-            println("Erro ao criar conversa")
+            var response = ChatModel()
+            val chatModel = ChatModel(
+                name = "conversa",
+                segment = user.segment,
+                privateChatMembers = listOf(user.id, tokenManager.getUser()?.id!!)
+            )
+            runBlocking {
+                try {
+                    response = chatsService.createChat(chatModel)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            if(response.id.isNotEmpty()) {
+                navController.navigate(Routes.ConversationScreen + "/${response.id}/${user.name}")
+            } else {
+                println("Erro ao criar conversa")
+            }
         }
     }
 
@@ -102,10 +115,23 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
 
             is AuthState.Authenticated -> {
                 val currentUser = tokenManager.getUser()
+                val allChats = chatsService.getChats()
+                val filteredChats = allChats.filter { chat ->
+                    if(chat.privateChatMembers.isNotEmpty()) {
+                        chat.privateChatMembers.contains(currentUser?.id)
+                    } else {
+                        false
+                    }
+                }
+
+                knownChats.value = filteredChats
+                println("just so you know: "+knownChats.value)
+
                 val allUsers = usersService.getAllUsers()
                 users.value = allUsers.filter { user ->
                     user.id != currentUser?.id && user.name.contains(pesquisa.value, ignoreCase = true)
                             || user.segment.contains(pesquisa.value, ignoreCase = true)
+                            || user.username.contains(pesquisa.value, ignoreCase = true)
                 }
             }
 
@@ -146,7 +172,7 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                     keyboardType = KeyboardType.Email
                 ),
                 placeholder = {
-                    Text(text = "Pesquisar por nome ou segmento")
+                    Text(text = "Pesquisar nome, segmento ou crm")
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
@@ -163,7 +189,8 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                     Spacer(modifier = Modifier.height(15.dp))
 
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .clickable(onClick = {
                                 askToCreateChat(item)
                             }),
@@ -171,7 +198,8 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
 
                         ) {
                         Box(
-                            modifier = Modifier.background(WTCBlue, RoundedCornerShape(200.dp))
+                            modifier = Modifier
+                                .background(WTCBlue, RoundedCornerShape(200.dp))
                                 .size(65.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -180,10 +208,33 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
 
                         Spacer(modifier = Modifier.size(20.dp))
 
-                        Text(
-                            style = MaterialTheme.typography.titleMedium,
-                            text = item.name
-                        )
+                        Column{
+                            Text(
+                                style = MaterialTheme.typography.titleMedium,
+                                text = item.name
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    style = MaterialTheme.typography.bodySmall,
+                                    text = when (item.segment.replace("SEGMENT_", "")) {
+                                        "RETAIL" -> "Varejo"
+                                        "EDUCATION" -> "Educação"
+                                        "FINANCE" -> "Financeiro"
+                                        "TECHNOLOGY" -> "Tecnologia"
+                                        "HEALTHCARE" -> "Saúde"
+                                        else -> "Comum"
+                                    }
+                                )
+                                Text(
+                                    style = MaterialTheme.typography.bodySmall,
+                                    text = "CRM: "+ item.username
+                                )
+                            }
+                        }
 
                     }
                     Spacer(modifier = Modifier.height(15.dp))
