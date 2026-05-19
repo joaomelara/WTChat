@@ -182,7 +182,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                 else -> {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(15.dp),
-                        contentPadding = PaddingValues(bottom = 110.dp)
+                        contentPadding = PaddingValues(bottom = 125.dp)
                     ) {
                         items(
                             items = campaigns.value,
