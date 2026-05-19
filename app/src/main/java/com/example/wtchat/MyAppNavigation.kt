@@ -7,6 +7,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.wtchat.pages.ProfilePage
 import com.example.wtchat.screens.NavScreen
 import com.example.wtchat.screens.ConversationScreen
+import com.example.wtchat.screens.CreateCampaignScreen
+import com.example.wtchat.screens.EditCampaignScreen
 import com.example.wtchat.screens.LoadingScreen
 import com.example.wtchat.screens.LoginScreen
 import com.example.wtchat.screens.ParticipantsScreen
@@ -15,9 +17,10 @@ import com.example.wtchat.screens.UsersScreen
 import com.example.wtchat.viewmodels.AuthViewModel
 
 @Composable
-fun MyAppNavigation(authViewModel: AuthViewModel){
+fun MyAppNavigation(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Routes.LoadingScreen, builder = {
+
         composable(Routes.LoadingScreen) {
             LoadingScreen(navController, authViewModel)
         }
@@ -30,8 +33,7 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
             SignUpScreen(navController, authViewModel)
         }
 
-        //some data passing tests
-        composable(Routes.ConversationHubScreen){
+        composable(Routes.ConversationHubScreen) {
             NavScreen(navController, authViewModel)
         }
 
@@ -54,6 +56,15 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
             val userId = it.arguments?.getString("userId") ?: "Error"
             val userName = it.arguments?.getString("userName") ?: ""
             ProfilePage(navController, authViewModel, userId)
+        }
+
+        composable(Routes.EditCampaignScreen + "/{campaignId}") {
+            val campaignId = it.arguments?.getString("campaignId") ?: "Error"
+            EditCampaignScreen(navController, authViewModel, campaignId)
+        }
+
+        composable(Routes.CreateCampaignScreen) {
+            CreateCampaignScreen(navController, authViewModel)
         }
 
     })

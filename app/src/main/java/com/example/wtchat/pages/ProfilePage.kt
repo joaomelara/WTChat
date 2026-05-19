@@ -47,6 +47,9 @@ import com.example.wtchat.ui.theme.WTCOrange
 import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.User
 
 @Composable
 fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, userId: String){
@@ -106,7 +109,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, user
                     .size(90.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = Icons.Rounded.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(60.dp), tint = WTCBackground)
+                Icon(imageVector = FontAwesomeIcons.Solid.User, contentDescription = "Profile Icon", modifier =  Modifier.size(42.dp), tint = WTCBackground)
             }
             Spacer(modifier = Modifier.height(25.dp))
             Text(
@@ -144,7 +147,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, user
                 ) {
                     Text(
                         style = MaterialTheme.typography.titleMedium,
-                        text = "CRM:"
+                        text = "Código CRM:"
                     )
                     Text(
                         style = MaterialTheme.typography.titleMedium,
@@ -161,7 +164,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, user
                         style = MaterialTheme.typography.titleMedium,
                         text = "Segmento:"
                     )
-                    val segment = safeUser.value.segment
+                        val segment = safeUser.value.segment
                         Text(
                             style = MaterialTheme.typography.titleMedium,
                             text = when (segment.replace("SEGMENT_", "")) {
@@ -180,7 +183,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, user
                         )
                         Text(
                             style = MaterialTheme.typography.titleMedium,
-                            text = "Operador"
+                            text = "Operador(a)"
                         )
                     }
                 }

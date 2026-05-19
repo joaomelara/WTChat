@@ -46,6 +46,9 @@ import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.User
 
 @Composable
 fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String){
@@ -77,10 +80,13 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
             }
             is AuthState.Authenticated -> {
                 try {
+                    val allUsers = usersService.getAllUsers()
                     chat.value = chatsService.getChatById(chatId)
                     if(chat.value.privateChatMembers.isEmpty()) {
                         val segment = chat.value.segment.replace("SEGMENT_", "")
-                        users.value = usersService.getUsersBySegment(segment)
+                        users.value = allUsers.filter { user ->
+                            user.segment.contains(segment) || user.roles.contains("ROLE_ADMIN")
+                        }
                     } else if(chat.value.privateChatMembers.isNotEmpty()) {
                         chat.value.privateChatMembers.forEach {
                             if(it != userId) {
@@ -132,16 +138,25 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                                 .size(50.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(imageVector = Icons.Rounded.Person, contentDescription = "User Icon", modifier =  Modifier.size(30.dp), tint = WTCBackground)
+                            Icon(imageVector = FontAwesomeIcons.Solid.User, contentDescription = "User Icon", modifier =  Modifier.size(21.dp), tint = WTCBackground)
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))
 
-                        Text(
-                            style = MaterialTheme.typography.titleMedium,
-                            text = item.name
-                        )
-
+                        Column {
+                            Text(
+                                style = MaterialTheme.typography.titleMedium,
+                                text = item.name + if(userId == item.id) " (Você)" else ""
+                            )
+                            if(item.roles.contains("ROLE_ADMIN")) {
+                                Spacer(modifier = Modifier.height(5.dp))
+                                Text(
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Medium,
+                                    text = "Operador(a)"
+                                )
+                            }
+                        }
                     }
                 }
             }

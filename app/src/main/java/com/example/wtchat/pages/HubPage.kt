@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -49,6 +51,12 @@ import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.utils.TokenManager
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.Comment
+import compose.icons.fontawesomeicons.solid.Plus
+import compose.icons.fontawesomeicons.solid.User
+import compose.icons.fontawesomeicons.solid.Users
 
 @Composable
 fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
@@ -59,6 +67,8 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
 
     val chatsService = RetrofitInstance.getInstance().chatsService
     val usersService = RetrofitInstance.getInstance().usersService
+
+    val isLoading = remember { mutableStateOf(true) }
 
     var context = LocalContext.current
     val tokenManager = TokenManager(context)
@@ -98,6 +108,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                         }
                     }
                     conversas.value = updatedChats
+                    isLoading.value = false
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -156,9 +167,9 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Add,
+                        imageVector = FontAwesomeIcons.Solid.Comment,
                         contentDescription = "Add Icon",
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(28.dp),
                         tint = WTCBackground
                     )
                 }
@@ -166,10 +177,12 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            LazyColumn {
+            if(!isLoading.value) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(30.dp),
+                contentPadding = PaddingValues(top = 30.dp,bottom = 125.dp)
+            ) {
                 items(conversas.value) { item ->
-                    Spacer(modifier = Modifier.height(30.dp))
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -185,7 +198,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                                 .size(65.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(imageVector = Icons.Rounded.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(40.dp), tint = WTCBackground)
+                            Icon(imageVector = if(item.privateChatMembers.isEmpty()) FontAwesomeIcons.Solid.Users else FontAwesomeIcons.Solid.User, contentDescription = "Chat Icon", modifier = if(item.privateChatMembers.isEmpty()) Modifier.size(40.dp) else Modifier.size(28.dp), tint = WTCBackground)
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))
@@ -196,9 +209,21 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                         )
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(125.dp))
-                }
+            }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(bottom = 125.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(color = WTCBlue)
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Text(
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            text = "Carregando..."
+                        )
+                    }
             }
         }
     }
