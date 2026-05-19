@@ -137,7 +137,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                     .clickable(onClick = {
                         navController.navigate(Routes.UsersScreen)
                     })
-                    .padding( 20.dp, 5.dp),
+                    .padding(20.dp, 5.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
 
@@ -150,7 +150,8 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
 
 
                 Box(
-                    modifier = Modifier.background(WTCBlue, RoundedCornerShape(200.dp))
+                    modifier = Modifier
+                        .background(WTCBlue, RoundedCornerShape(200.dp))
                         .size(45.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -166,21 +167,21 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
             Spacer(modifier = Modifier.height(15.dp))
 
             LazyColumn {
-                var count = 0
                 items(conversas.value) { item ->
-                    count++
                     Spacer(modifier = Modifier.height(30.dp))
 
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .clickable(onClick = {
-                                navController.navigate(Routes.ConversationScreen+"/"+item.id+"/"+item.name)
+                                navController.navigate(Routes.ConversationScreen + "/" + item.id + "/" + item.name)
                             }),
                         verticalAlignment = Alignment.CenterVertically,
 
                         ) {
                         Box(
-                            modifier = Modifier.background(WTCBlue, RoundedCornerShape(200.dp))
+                            modifier = Modifier
+                                .background(WTCBlue, RoundedCornerShape(200.dp))
                                 .size(65.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -193,12 +194,12 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                             style = MaterialTheme.typography.titleMedium,
                             text = item.name
                         )
-
                     }
-                    if(count == conversas.value.size) Spacer(modifier = Modifier.height(130.dp))
+                }
+                item {
+                    Spacer(modifier = Modifier.height(125.dp))
                 }
             }
-
         }
     }
 
