@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
@@ -72,14 +73,39 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "Campanhas",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = WTCBlue
-            )
+            // Título + botão criar
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Campanhas",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = WTCBlue
+                )
 
-            Spacer(modifier = Modifier.height(30.dp))
+                Button(
+                    onClick = { navController.navigate(Routes.CreateCampaignScreen) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = WTCBlue),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = "Criar campanha",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Nova",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
 
             when {
                 isLoading.value -> {
@@ -193,7 +219,6 @@ fun CampaignCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                // Conteúdo principal
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = campaign.title,

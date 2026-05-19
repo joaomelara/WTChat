@@ -47,11 +47,11 @@ fun EditCampaignScreen(
 
     // Segmentos disponíveis
     val availableSegments = listOf(
-        "SEGMENT_RETAIL",
-        "SEGMENT_HEALTHCARE",
-        "SEGMENT_EDUCATION",
-        "SEGMENT_FINANCE",
-        "SEGMENT_TECHNOLOGY"
+        "RETAIL",
+        "HEALTHCARE",
+        "EDUCATION",
+        "FINANCE",
+        "TECHNOLOGY"
     )
     val selectedSegments = remember { mutableStateListOf<String>() }
 
@@ -67,18 +67,19 @@ fun EditCampaignScreen(
                 description = campaign.description
                 date = campaign.date
                 selectedSegments.clear()
-                selectedSegments.addAll(campaign.segments)
+                // Normaliza removendo o prefixo ao carregar
+                selectedSegments.addAll(
+                    campaign.segments.map { it.removePrefix("SEGMENT_") }
+                )
             } else {
                 errorMessage = "Campanha não encontrada"
             }
         } catch (e: Exception) {
             errorMessage = "Erro ao carregar campanha"
-            println("Erro ao carregar campanha: ${e.message}")
         } finally {
             isLoadingCampaign = false
         }
     }
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = WTCBackground

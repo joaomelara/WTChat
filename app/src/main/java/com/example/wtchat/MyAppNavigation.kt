@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.wtchat.pages.ProfilePage
 import com.example.wtchat.screens.NavScreen
 import com.example.wtchat.screens.ConversationScreen
+import com.example.wtchat.screens.CreateCampaignScreen
 import com.example.wtchat.screens.EditCampaignScreen
 import com.example.wtchat.screens.LoadingScreen
 import com.example.wtchat.screens.LoginScreen
@@ -56,6 +57,10 @@ fun MyAppNavigation(authViewModel: AuthViewModel) {
         composable(Routes.EditCampaignScreen + "/{campaignId}") {
             val campaignId = it.arguments?.getString("campaignId") ?: "Error"
             EditCampaignScreen(navController, authViewModel, campaignId)
+        }
+
+        composable(Routes.CreateCampaignScreen) {
+            CreateCampaignScreen(navController, authViewModel)
         }
 
     })
