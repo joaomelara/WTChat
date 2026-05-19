@@ -32,20 +32,18 @@ fun EditCampaignScreen(
     val campaignService = RetrofitInstance.getInstance().campaignService
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val isAdmin = remember { authViewModel.isAdmin() }
 
-    // Estados do formulário
     var title by remember { mutableStateOf("") }
     var subtitle by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
 
-    // Estados de controle
     var isLoadingCampaign by remember { mutableStateOf(true) }
     var isSaving by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
 
-    // Segmentos disponíveis
     val availableSegments = listOf(
         "RETAIL",
         "HEALTHCARE",
@@ -55,11 +53,15 @@ fun EditCampaignScreen(
     )
     val selectedSegments = remember { mutableStateListOf<String>() }
 
-    // Carrega dados da campanha ao abrir a tela
+
     LaunchedEffect(campaignId) {
         isLoadingCampaign = true
         try {
-            val allCampaigns = campaignService.getCampaigns()
+            val allCampaigns = if (isAdmin) {
+                campaignService.getAllCampaigns()
+            } else {
+                campaignService.getCampaigns()
+            }
             val campaign = allCampaigns.find { it.id == campaignId }
             if (campaign != null) {
                 title = campaign.title
@@ -67,7 +69,6 @@ fun EditCampaignScreen(
                 description = campaign.description
                 date = campaign.date
                 selectedSegments.clear()
-                // Normaliza removendo o prefixo ao carregar
                 selectedSegments.addAll(
                     campaign.segments.map { it.removePrefix("SEGMENT_") }
                 )
@@ -76,17 +77,18 @@ fun EditCampaignScreen(
             }
         } catch (e: Exception) {
             errorMessage = "Erro ao carregar campanha"
+            println("Erro ao carregar campanha: ${e.message}")
         } finally {
             isLoadingCampaign = false
         }
     }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = WTCBackground
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // Top Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -141,7 +143,6 @@ fun EditCampaignScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
 
-                        // Feedback de erro
                         errorMessage?.let {
                             Card(
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE)),
@@ -156,7 +157,6 @@ fun EditCampaignScreen(
                             }
                         }
 
-                        // Feedback de sucesso
                         successMessage?.let {
                             Card(
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9)),
@@ -171,7 +171,6 @@ fun EditCampaignScreen(
                             }
                         }
 
-                        // Campo Título
                         OutlinedTextField(
                             value = title,
                             onValueChange = { title = it },
@@ -186,7 +185,6 @@ fun EditCampaignScreen(
                             singleLine = true
                         )
 
-                        // Campo Subtítulo
                         OutlinedTextField(
                             value = subtitle,
                             onValueChange = { subtitle = it },
@@ -201,7 +199,6 @@ fun EditCampaignScreen(
                             singleLine = true
                         )
 
-                        // Campo Descrição
                         OutlinedTextField(
                             value = description,
                             onValueChange = { description = it },
@@ -218,7 +215,6 @@ fun EditCampaignScreen(
                             maxLines = 4
                         )
 
-                        // Campo Data
                         OutlinedTextField(
                             value = date,
                             onValueChange = { date = it },
@@ -233,7 +229,6 @@ fun EditCampaignScreen(
                             singleLine = true
                         )
 
-                        // Seleção de Segmentos
                         Text(
                             text = "Segmentos",
                             style = MaterialTheme.typography.titleSmall,
@@ -243,7 +238,6 @@ fun EditCampaignScreen(
 
                         availableSegments.forEach { segment ->
                             val isSelected = selectedSegments.contains(segment)
-                            val label = segment.removePrefix("SEGMENT_")
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -261,7 +255,7 @@ fun EditCampaignScreen(
                                     )
                                 )
                                 Text(
-                                    text = label,
+                                    text = segment,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = if (isSelected) WTCBlue else Color.Gray
                                 )
@@ -270,11 +264,14 @@ fun EditCampaignScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Botão Salvar
                         Button(
                             onClick = {
                                 if (title.isBlank() || subtitle.isBlank() || description.isBlank() || date.isBlank()) {
                                     errorMessage = "Preencha todos os campos obrigatórios"
+                                    return@Button
+                                }
+                                if (selectedSegments.isEmpty()) {
+                                    errorMessage = "Selecione ao menos um segmento"
                                     return@Button
                                 }
                                 coroutineScope.launch {
@@ -321,7 +318,6 @@ fun EditCampaignScreen(
                             }
                         }
 
-                        // Botão Cancelar
                         OutlinedButton(
                             onClick = { navController.popBackStack() },
                             modifier = Modifier

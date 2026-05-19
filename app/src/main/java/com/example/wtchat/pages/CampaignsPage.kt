@@ -35,6 +35,8 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
     val campaigns = remember { mutableStateOf<List<CampaignModel>>(emptyList()) }
     val isLoading = remember { mutableStateOf(false) }
     val errorMessage = remember { mutableStateOf<String?>(null) }
+    val isAdmin = remember { authViewModel.isAdmin() }
+    val currentUsername = remember { authViewModel.getUsername() }
 
     val campaignService = RetrofitInstance.getInstance().campaignService
     val coroutineScope = rememberCoroutineScope()
@@ -49,7 +51,14 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                 isLoading.value = true
                 errorMessage.value = null
                 try {
-                    campaigns.value = campaignService.getCampaigns()
+                    campaigns.value = if (isAdmin) {
+                        campaignService.getAllCampaigns()
+                    } else {
+                        campaignService.getCampaigns()
+                    }
+                    campaigns.value.forEach { campaign ->
+                        println("createdBy: '${campaign.createdBy}' | currentUsername: '$currentUsername'")
+                    }
                 } catch (e: Exception) {
                     errorMessage.value = "Erro ao carregar campanhas"
                     println("Erro ao carregar campanhas: ${e.message}")
@@ -73,7 +82,6 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Título + botão criar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,22 +94,24 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                     color = WTCBlue
                 )
 
-                Button(
-                    onClick = { navController.navigate(Routes.CreateCampaignScreen) },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = WTCBlue),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = "Criar campanha",
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Nova",
-                        fontWeight = FontWeight.Bold
-                    )
+                if (isAdmin) {
+                    Button(
+                        onClick = { navController.navigate(Routes.CreateCampaignScreen) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = WTCBlue),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = "Criar campanha",
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Nova",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
@@ -110,7 +120,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
             when {
                 isLoading.value -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(bottom = 110.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = WTCBlue)
@@ -119,7 +129,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
 
                 errorMessage.value != null -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(bottom = 110.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -135,7 +145,11 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                                         isLoading.value = true
                                         errorMessage.value = null
                                         try {
-                                            campaigns.value = campaignService.getCampaigns()
+                                            campaigns.value = if (isAdmin) {
+                                                campaignService.getAllCampaigns()
+                                            } else {
+                                                campaignService.getCampaigns()
+                                            }
                                         } catch (e: Exception) {
                                             errorMessage.value = "Erro ao carregar campanhas"
                                         } finally {
@@ -153,7 +167,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
 
                 campaigns.value.isEmpty() -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(bottom = 110.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -167,7 +181,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                 else -> {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(15.dp),
-                        contentPadding = PaddingValues(bottom = 20.dp)
+                        contentPadding = PaddingValues(bottom = 110.dp)
                     ) {
                         items(
                             items = campaigns.value,
@@ -175,6 +189,9 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                         ) { campaign ->
                             CampaignCard(
                                 campaign = campaign,
+                                // Apenas o criador da campanha pode editar/deletar
+                                canEdit = campaign.createdBy?.trim()
+                                    ?.equals(currentUsername?.trim(), ignoreCase = true) == true,
                                 onEditClick = {
                                     navController.navigate(Routes.EditCampaignScreen + "/${campaign.id}")
                                 },
@@ -182,7 +199,11 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                                     coroutineScope.launch {
                                         try {
                                             campaignService.deleteCampaign(campaign.id)
-                                            campaigns.value = campaignService.getCampaigns()
+                                            campaigns.value = if (isAdmin) {
+                                                campaignService.getAllCampaigns()
+                                            } else {
+                                                campaignService.getCampaigns()
+                                            }
                                         } catch (e: Exception) {
                                             println("Erro ao deletar campanha: ${e.message}")
                                         }
@@ -200,6 +221,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
 @Composable
 fun CampaignCard(
     campaign: CampaignModel,
+    canEdit: Boolean = false,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -243,60 +265,62 @@ fun CampaignCard(
                         color = Color.Gray,
                         maxLines = 2
                     )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Data: ${campaign.date}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = WTCOrange
-                        )
-                        Text(
-                            text = "Por: ${campaign.createdBy ?: "N/A"}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = WTCOrange
-                        )
-                    }
-
-                    if (campaign.segments.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "Segmentos: ${campaign.segments.joinToString(", ") { it.removePrefix("SEGMENT_") }}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = WTCBlue
-                        )
-                    }
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = onEditClick,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Edit,
-                            contentDescription = "Editar campanha",
-                            tint = WTCBlue,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                if (canEdit) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = onEditClick,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Edit,
+                                contentDescription = "Editar campanha",
+                                tint = WTCBlue,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
 
-                    IconButton(
-                        onClick = onDeleteClick,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Delete,
-                            contentDescription = "Deletar campanha",
-                            tint = Color.Red,
-                            modifier = Modifier.size(24.dp)
-                        )
+                        IconButton(
+                            onClick = onDeleteClick,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Delete,
+                                contentDescription = "Deletar campanha",
+                                tint = Color.Red,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Data: ${campaign.date}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = WTCOrange
+                )
+                Text(
+                    text = "Por (CRM): ${campaign.createdBy ?: "N/A"}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = WTCOrange
+                )
+            }
+
+            if (campaign.segments.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Segmentos: ${campaign.segments.joinToString(", ") { it.removePrefix("SEGMENT_") }}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = WTCBlue
+                )
             }
         }
     }

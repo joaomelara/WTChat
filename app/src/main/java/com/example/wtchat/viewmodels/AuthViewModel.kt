@@ -37,6 +37,14 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun isAdmin(): Boolean {
+        return tokenManager.getUser()?.roles?.contains("ROLE_ADMIN") == true
+    }
+
+    fun getUsername(): String? {
+        return tokenManager.getUser()?.username
+    }
+
     fun login(email: String, senha: String){
 
         if (email.isEmpty() || senha.isEmpty()) {
@@ -106,6 +114,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         _authToken.value = null
         _authState.value = AuthState.Unauthenticated
     }
+
 
 }
 
