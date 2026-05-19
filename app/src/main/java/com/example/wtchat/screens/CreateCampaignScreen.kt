@@ -22,6 +22,10 @@ import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
 
+private const val MAX_TITLE = 100
+private const val MAX_SUBTITLE = 150
+private const val MAX_DESCRIPTION = 1000
+
 @Composable
 fun CreateCampaignScreen(
     navController: NavController,
@@ -124,6 +128,13 @@ fun CreateCampaignScreen(
                         focusedLabelColor = WTCBlue,
                         cursorColor = WTCBlue
                     ),
+                    supportingText = {
+                        Text(
+                            text = "${title.length}/$MAX_TITLE",
+                            color = if (title.length >= MAX_TITLE) Color.Red else Color.Gray,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
                     singleLine = true
                 )
 
@@ -139,7 +150,14 @@ fun CreateCampaignScreen(
                         focusedLabelColor = WTCBlue,
                         cursorColor = WTCBlue
                     ),
-                    singleLine = true
+                    singleLine = true,
+                    supportingText = {
+                        Text(
+                            text = "${subtitle.length}/$MAX_SUBTITLE",
+                            color = if (subtitle.length >= MAX_SUBTITLE) Color.Red else Color.Gray,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
                 )
 
                 // Campo Descrição
@@ -156,7 +174,14 @@ fun CreateCampaignScreen(
                         focusedLabelColor = WTCBlue,
                         cursorColor = WTCBlue
                     ),
-                    maxLines = 4
+                    maxLines = 4,
+                    supportingText = {
+                        Text(
+                            text = "${description.length}/$MAX_DESCRIPTION",
+                            color = if (description.length >= MAX_DESCRIPTION) Color.Red else Color.Gray,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
                 )
 
                 // Campo Data

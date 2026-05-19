@@ -1,12 +1,15 @@
 package com.example.wtchat.screens
 
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +21,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -66,8 +74,26 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
     val chatsService = RetrofitInstance.getInstance().chatsService
     val usersService = RetrofitInstance.getInstance().usersService
 
+    val isLoading = remember { mutableStateOf(true) }
+
     var users = remember {
         mutableStateOf<List<UserModel>>(emptyList())
+    }
+
+    var selectedRole = remember {
+        mutableStateOf("")
+    }
+
+    var expandedRole = remember {
+        mutableStateOf(false)
+    }
+
+    var selectedSegment = remember {
+        mutableStateOf("")  // Valor padrão
+    }
+
+    var expandedSegment = remember {
+        mutableStateOf(false)
     }
 
     var knownChats = remember {
@@ -111,13 +137,14 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
         }
     }
 
-    LaunchedEffect(authState.value, pesquisa.value) {
+    LaunchedEffect(authState.value, pesquisa.value, selectedRole.value, selectedSegment.value) {
         when(authState.value) {
             is AuthState.Unauthenticated -> navController.navigate(Routes.LoginScreen) {
                 popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
             }
 
             is AuthState.Authenticated -> {
+                isLoading.value = true
                 val currentUser = tokenManager.getUser()
                 val allChats = chatsService.getChats()
                 val filteredChats = allChats.filter { chat ->
@@ -132,11 +159,21 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                 println("just so you know: "+knownChats.value)
 
                 val allUsers = usersService.getAllUsers()
+
+                println("Selected role: ${selectedRole.value} | Selected segment: ${selectedSegment.value} | Pesquisa: ${pesquisa.value}")
+
                 users.value = allUsers.filter { user ->
-                    user.id != currentUser?.id && user.name.contains(pesquisa.value, ignoreCase = true)
-                            || user.segment.contains(pesquisa.value, ignoreCase = true)
-                            || user.username.contains(pesquisa.value, ignoreCase = true)
+
+                    println("Checking user: ${user.name} | Roles: ${user.roles} | Segment: ${user.segment}")
+
+                    user.id != currentUser?.id && user.roles.toString().contains(selectedRole.value)
+                            && user.segment.contains(selectedSegment.value)
+                            && (user.name.contains(pesquisa.value, ignoreCase = true) || user.username.contains(pesquisa.value, ignoreCase = true))
+
                 }
+
+                isLoading.value = false
+
             }
 
             else -> Unit
@@ -176,7 +213,7 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                     keyboardType = KeyboardType.Email
                 ),
                 placeholder = {
-                    Text(text = "Pesquisar nome, segmento ou crm")
+                    Text(text = "Pesquisar nome ou código CRM")
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
@@ -188,37 +225,187 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            LazyColumn {
-                items(users.value) { item ->
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(onClick = {
-                                askToCreateChat(item)
-                            }),
-                        verticalAlignment = Alignment.CenterVertically,
-
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                ) {
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Button(
+                        onClick = {
+                            expandedRole.value = !expandedRole.value
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                        Box(
-                            modifier = Modifier
-                                .background(WTCBlue, RoundedCornerShape(200.dp))
-                                .size(65.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(imageVector = FontAwesomeIcons.Solid.User, contentDescription = "Chat Icon", modifier =  Modifier.size(28.dp), tint = WTCBackground)
-                        }
-
-                        Spacer(modifier = Modifier.size(20.dp))
-
-                        Column{
                             Text(
-                                style = MaterialTheme.typography.titleMedium,
-                                text = item.name
+                                text = "Função",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(5.dp))
-                                if(!item.roles.contains("ROLE_ADMIN")) {
+                            Text(
+                                text = when(selectedRole.value){
+                                    "ADMIN" -> "Operador"
+                                    "USER" -> "Usuário"
+                                    else -> "Todos"
+                                },
+                                color = Color.Black,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = expandedRole.value,
+                        onDismissRequest = { expandedRole.value = false },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Todos") },
+                            onClick = {
+                                selectedRole.value = ""
+                                expandedRole.value = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Usuário") },
+                            onClick = {
+                                selectedRole.value = "USER"
+                                expandedRole.value = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Operador") },
+                            onClick = {
+                                selectedRole.value = "ADMIN"
+                                expandedRole.value = false
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.size(15.dp))
+
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Button(
+                        onClick = {
+                            expandedSegment.value = !expandedSegment.value
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = WTCGrey),
+                        shape = RoundedCornerShape(20.dp),
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Segmento",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text(
+                                text = when (selectedSegment.value) {
+                                    "RETAIL" -> "Varejo"
+                                    "EDUCATION" -> "Educação"
+                                    "FINANCE" -> "Financeiro"
+                                    "TECHNOLOGY" -> "Tecnologia"
+                                    "HEALTHCARE" -> "Saúde"
+                                    else -> "Todos"
+                                },
+                                color = Color.Black,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = expandedSegment.value,
+                        onDismissRequest = { expandedSegment.value = false },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        listOf(
+                            "",
+                            "RETAIL",
+                            "HEALTHCARE",
+                            "EDUCATION",
+                            "FINANCE",
+                            "TECHNOLOGY"
+                        ).forEach { seg ->
+                            DropdownMenuItem(
+                                text = { Text(when(seg) {
+                                    "RETAIL" -> "Varejo"
+                                    "EDUCATION" -> "Educação"
+                                    "FINANCE" -> "Financeiro"
+                                    "TECHNOLOGY" -> "Tecnologia"
+                                    "HEALTHCARE" -> "Saúde"
+                                    else -> "Todos"
+                                })},
+                                onClick = {
+                                    selectedSegment.value = seg
+                                    expandedSegment.value = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            if(!isLoading.value && users.value.isNotEmpty()) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(30.dp),
+                    contentPadding = PaddingValues(top = 30.dp,bottom = 125.dp)
+                ) {
+                    items(users.value) { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = {
+                                    askToCreateChat(item)
+                                }),
+                            verticalAlignment = Alignment.CenterVertically,
+
+                            ) {
+                            Box(
+                                modifier = Modifier
+                                    .background(WTCBlue, RoundedCornerShape(200.dp))
+                                    .size(65.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = FontAwesomeIcons.Solid.User,
+                                    contentDescription = "Chat Icon",
+                                    modifier = Modifier.size(28.dp),
+                                    tint = WTCBackground
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.size(20.dp))
+
+                            Column {
+                                Text(
+                                    style = MaterialTheme.typography.titleMedium,
+                                    text = item.name
+                                )
+                                Spacer(modifier = Modifier.height(5.dp))
+                                if (!item.roles.contains("ROLE_ADMIN")) {
                                     Text(
                                         style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.Medium,
@@ -247,11 +434,34 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                     color = Color.Gray
                                 )
 
+                            }
                         }
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(30.dp))
+            } else if(isLoading.value) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(color = WTCBlue)
+                    Spacer(modifier = Modifier.height(15.dp))
+                    Text(
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        text = "Carregando..."
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(bottom = 110.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Usuário não encontrado.",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 

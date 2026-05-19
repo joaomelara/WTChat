@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -66,6 +68,8 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
     val chatsService = RetrofitInstance.getInstance().chatsService
     val usersService = RetrofitInstance.getInstance().usersService
 
+    val isLoading = remember { mutableStateOf(true) }
+
     var context = LocalContext.current
     val tokenManager = TokenManager(context)
 
@@ -104,6 +108,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                         }
                     }
                     conversas.value = updatedChats
+                    isLoading.value = false
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -172,10 +177,12 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            LazyColumn {
+            if(!isLoading.value) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(30.dp),
+                contentPadding = PaddingValues(top = 30.dp,bottom = 125.dp)
+            ) {
                 items(conversas.value) { item ->
-                    Spacer(modifier = Modifier.height(30.dp))
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -202,9 +209,21 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                         )
                     }
                 }
-                item {
-                    Spacer(modifier = Modifier.height(125.dp))
-                }
+            }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(bottom = 125.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(color = WTCBlue)
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Text(
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            text = "Carregando..."
+                        )
+                    }
             }
         }
     }
