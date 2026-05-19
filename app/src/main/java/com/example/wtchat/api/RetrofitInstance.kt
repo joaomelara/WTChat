@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 class RetrofitInstance private constructor(context: Context) {
     companion object {
 
-        private const val BASE_URL = "http://192.168.15.4:8080/"  // Para emulador: 10.0.2.2, para device: use IP real
+        private const val BASE_URL = "https://wtchat-backend.jollyfield-5dc0fa80.brazilsouth.azurecontainerapps.io"  // Para emulador: 10.0.2.2, para device: use IP real
         private var instance: RetrofitInstance? = null
 
         fun initialize(context: Context) {

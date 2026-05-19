@@ -1,11 +1,14 @@
 package com.example.wtchat.models
 
 import kotlinx.serialization.Serializable
-import java.util.Date
 
+@Serializable
 data class MessageModel(
-    val autor: String = "",
-    val nome: String = "",
-    val texto: String = "",
-    val data: Date? = null
+    val id: String = "",
+    val author: String = "",
+    val username: String = "",
+    val message: String = "",
+    val groupId: String = "",
+    val timestamp: String = ""
 )
+

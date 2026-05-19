@@ -10,4 +10,5 @@ object Routes {
     var ProfilePage = "Profile_Page"
     var EditCampaignScreen = "Edit_Campaign_Screen"
     var CreateCampaignScreen = "Create_Campaign_Screen"
+    var UsersScreen = "Users_Screen"
 }

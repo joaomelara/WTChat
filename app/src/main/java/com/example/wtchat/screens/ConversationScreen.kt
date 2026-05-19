@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
@@ -58,21 +59,21 @@ import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.ui.theme.WTCLightBlue
 import com.example.wtchat.ui.theme.WTCOnPrimary
 import com.example.wtchat.ui.theme.WTCOrange
+import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.firestore
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
 
 @Composable
-fun ConversationScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String, chatNome: String, userNome: String){
+fun ConversationScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String, chatNome: String){
 
     var context = LocalContext.current
-
-    val userId = FirebaseAuth.getInstance().currentUser?.uid!!
+    val tokenManager = TokenManager(context)
+    val userNome = tokenManager.getUser()?.name ?: "Error"
+    val userId = tokenManager.getUser()?.id ?: "Error"
+    val messagesService = RetrofitInstance.getInstance().messagesService
 
     val authState = authViewModel.authState.observeAsState()
 
@@ -86,6 +87,17 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
         mutableStateOf<List<MessageModel>>(emptyList())
     }
 
+    val incomingMessage = authViewModel.wsMessages.observeAsState().value
+
+    LaunchedEffect(incomingMessage) {
+        incomingMessage?.let { newMessage ->
+            if (newMessage.groupId != chatId) return@let
+            if (mensagens.value.none { it.id.isNotEmpty() && it.id == newMessage.id }) {
+                mensagens.value += newMessage
+            }
+        }
+    }
+
     LaunchedEffect(authState.value) {
         when(authState.value){
             is AuthState.Unauthenticated -> navController.navigate(Routes.LoginScreen){
@@ -93,7 +105,7 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
             }
             is AuthState.Authenticated -> {
                 try {
-                    val messages = RetrofitInstance.getInstance().messagesService.getMessages(chatId)
+                    val messages = messagesService.getMessages(chatId)
                     mensagens.value = messages
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -106,6 +118,17 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
     LaunchedEffect(mensagens.value) {
         if(mensagens.value.isNotEmpty()){
             listState.animateScrollToItem(mensagens.value.lastIndex)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        authViewModel.connectWebSocket(chatId)
+    }
+
+// Cleanup on leave
+    DisposableEffect(Unit) {
+        onDispose {
+            authViewModel.webSocketManager.disconnect()
         }
     }
 
@@ -163,14 +186,17 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                     end.linkTo(parent.end)
                 },
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TextField(
+                modifier = Modifier
+                    .weight(1f),
                 shape = RoundedCornerShape(20.dp),
                 value = novaMensagem.value,
                 onValueChange = { novoValor ->
                     novaMensagem.value = novoValor
                 },
+                maxLines = 3,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email
                 ),
@@ -178,23 +204,24 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                     Text(text = "Escreva uma mensagem", color = WTCBlue)
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
                     unfocusedContainerColor = WTCGrey,
                     focusedContainerColor = WTCGrey,
                     focusedTextColor = WTCBlue,
                     unfocusedTextColor = WTCBlue
                 ),
-                )
+            )
             IconButton(
                 modifier = Modifier.background(WTCBlue, RoundedCornerShape(100.dp)),
                 onClick = {
                     val messageLocalDateTime = LocalDateTime.now()
-                    val messageDate = Date.from(messageLocalDateTime.atZone(ZoneId.systemDefault()).toInstant())
+                    val messageDate = messageLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-                    val message = MessageModel(userId, userNome, novaMensagem.value, messageDate)
+                    val message = MessageModel(author = userId, username = userNome, message = novaMensagem.value, groupId = chatId)
 
-                    Firebase.firestore.collection("chats").document(chatId).collection("messages").add(message)
+                    // Send via WebSocket instead of REST
+                    authViewModel.sendMessageWebSocket(message)
                     novaMensagem.value = ""
                 },
             ) {
@@ -209,18 +236,20 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
 @Composable
 fun ChatItem(item: MessageModel) {
 
-    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    var context = LocalContext.current
+    val tokenManager = TokenManager(context)
+    val userId = tokenManager.getUser()?.id ?: "Error"
 
     Spacer(modifier = Modifier.size(10.dp))
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (item.autor == userId) Alignment.End else Alignment.Start
+        horizontalAlignment = if (item.author == userId) Alignment.End else Alignment.Start
     ) {
-        if (item.autor != userId) {
+        if (item.author != userId) {
             Text(
                 modifier = Modifier.padding(start = 5.dp),
                 style = MaterialTheme.typography.bodySmall,
-                text = item.nome
+                text = item.username
             )
         }
         Box(
@@ -229,17 +258,17 @@ fun ChatItem(item: MessageModel) {
                     RoundedCornerShape(
                         topStart = 48f,
                         topEnd = 48f,
-                        bottomStart = if (item.autor == userId) 48f else 0f,
-                        bottomEnd = if (item.autor == userId) 0f else 48f
+                        bottomStart = if (item.author == userId) 48f else 0f,
+                        bottomEnd = if (item.author == userId) 0f else 48f
                     )
                 )
-                .background(if (item.autor == userId) WTCGrey else WTCLightBlue)
+                .background(if (item.author == userId) WTCGrey else WTCLightBlue)
                 .padding(16.dp)
         ) {
             Text(
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (item.autor == userId) WTCBlue else WTCOnPrimary,
-                text = item.texto
+                color = if (item.author == userId) WTCBlue else WTCOnPrimary,
+                text = item.message
             )
         }
     }

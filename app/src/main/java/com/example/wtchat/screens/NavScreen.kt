@@ -108,7 +108,7 @@ fun ContentScreen(
         when (selectedIndex) {
             0 -> HubPage(navController, authViewModel)
             1 -> CampaignsPage(navController, authViewModel)
-            2 -> ProfilePage(navController, authViewModel, "Hub", userId)
+            2 -> ProfilePage(navController, authViewModel, userId)
             3 -> SettingsPage(navController, authViewModel)
         }
     }

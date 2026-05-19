@@ -6,10 +6,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.wtchat.api.RetrofitInstance
+import com.example.wtchat.models.MessageModel
 import com.example.wtchat.models.SignInRequest
 import com.example.wtchat.models.SignUpRequest
 import com.example.wtchat.models.UserModel
 import com.example.wtchat.utils.TokenManager
+import com.example.wtchat.websocket.ChatWebSocketManager
 import kotlinx.coroutines.launch
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
@@ -19,6 +21,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
+
+    val webSocketManager = ChatWebSocketManager()
+
+    val wsConnectionStatus = webSocketManager.connectionStatus
+    val wsMessages = webSocketManager.incomingMessages
 
     private val _authToken = MutableLiveData<String?>()
     val authToken: LiveData<String?> = _authToken
@@ -109,7 +116,31 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Add method to connect WebSocket
+    fun connectWebSocket(chatId: String) {
+        val token = tokenManager.getAccessToken()
+        if (token != null) {
+            webSocketManager.connect(token)
+        }
+    }
+
+    // Add method to send message via WebSocket
+    fun sendMessageWebSocket(message: MessageModel) {
+        webSocketManager.sendMessage(message)
+    }
+
+    fun sendMessage( message: MessageModel){
+        viewModelScope.launch {
+                try {
+                    RetrofitInstance.getInstance().messagesService.sendMessage(message)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+        }
+    }
+
     fun signout(){
+        webSocketManager.disconnect()
         tokenManager.clearToken()
         _authToken.value = null
         _authState.value = AuthState.Unauthenticated
