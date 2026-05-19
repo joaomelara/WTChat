@@ -28,6 +28,12 @@ import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.ui.theme.WTCOrange
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.Comment
+import compose.icons.fontawesomeicons.solid.Feather
+import compose.icons.fontawesomeicons.solid.Plus
+import compose.icons.fontawesomeicons.solid.Trash
 import kotlinx.coroutines.launch
 
 @Composable
@@ -103,9 +109,9 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Add,
+                            imageVector = FontAwesomeIcons.Solid.Plus,
                             contentDescription = "Criar campanha",
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
@@ -301,10 +307,10 @@ fun CampaignCard(
                             modifier = Modifier.size(40.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Edit,
+                                imageVector =  	FontAwesomeIcons.Solid.Feather,
                                 contentDescription = "Editar campanha",
                                 tint = WTCBlue,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
 
@@ -313,10 +319,10 @@ fun CampaignCard(
                             modifier = Modifier.size(40.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Delete,
+                                imageVector =  	FontAwesomeIcons.Solid.Trash,
                                 contentDescription = "Deletar campanha",
                                 tint = Color.Red,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }

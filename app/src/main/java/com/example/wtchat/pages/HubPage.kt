@@ -49,6 +49,12 @@ import com.example.wtchat.ui.theme.WTCBackground
 import com.example.wtchat.ui.theme.WTCBlue
 import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.utils.TokenManager
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.Comment
+import compose.icons.fontawesomeicons.solid.Plus
+import compose.icons.fontawesomeicons.solid.User
+import compose.icons.fontawesomeicons.solid.Users
 
 @Composable
 fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
@@ -156,9 +162,9 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Add,
+                        imageVector = FontAwesomeIcons.Solid.Comment,
                         contentDescription = "Add Icon",
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(28.dp),
                         tint = WTCBackground
                     )
                 }
@@ -185,7 +191,7 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                                 .size(65.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(imageVector = Icons.Rounded.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(40.dp), tint = WTCBackground)
+                            Icon(imageVector = if(item.privateChatMembers.isEmpty()) FontAwesomeIcons.Solid.Users else FontAwesomeIcons.Solid.User, contentDescription = "Chat Icon", modifier = if(item.privateChatMembers.isEmpty()) Modifier.size(40.dp) else Modifier.size(28.dp), tint = WTCBackground)
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))

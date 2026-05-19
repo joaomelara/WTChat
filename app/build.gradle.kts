@@ -63,6 +63,9 @@ dependencies {
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.serialization.core)
 
+    //Icons
+    implementation("br.com.devsrsouza.compose.icons:font-awesome:1.1.1")
+
     implementation(libs.androidx.material3)
     implementation("androidx.navigation:navigation-compose:${nav_version}")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")

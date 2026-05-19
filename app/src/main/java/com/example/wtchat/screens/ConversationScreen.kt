@@ -62,6 +62,9 @@ import com.example.wtchat.ui.theme.WTCOrange
 import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.PaperPlane
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
@@ -213,7 +216,7 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                 ),
             )
             IconButton(
-                modifier = Modifier.background(WTCBlue, RoundedCornerShape(100.dp)),
+                modifier = Modifier.background(WTCBlue, RoundedCornerShape(150.dp)).padding(end = 4.dp),
                 onClick = {
                     val messageLocalDateTime = LocalDateTime.now()
                     val messageDate = messageLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -226,7 +229,7 @@ fun ConversationScreen(navController: NavController ,authViewModel: AuthViewMode
                 },
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = "Send Icon", tint = WTCBackground
+                    imageVector =  FontAwesomeIcons.Solid.PaperPlane, contentDescription = "Send Icon", tint = WTCBackground, modifier = Modifier.size(20.dp)
                 )
             }
         }

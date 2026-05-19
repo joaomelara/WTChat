@@ -40,6 +40,12 @@ import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.Bell
+import compose.icons.fontawesomeicons.solid.Cog
+import compose.icons.fontawesomeicons.solid.Home
+import compose.icons.fontawesomeicons.solid.User
 
 @Composable
 fun NavScreen(navController: NavController, authViewModel: AuthViewModel){
@@ -58,10 +64,10 @@ fun NavScreen(navController: NavController, authViewModel: AuthViewModel){
     }
 
     val navItemList = listOf(
-        NavItem("Home", Icons.Rounded.Home),
-        NavItem("Campaigns", Icons.Rounded.Notifications),
-        NavItem("Profile", Icons.Rounded.Person),
-        NavItem("Settings", Icons.Rounded.Settings)
+        NavItem("Home", FontAwesomeIcons.Solid.Home),
+        NavItem("Campaigns", FontAwesomeIcons.Solid.Bell),
+        NavItem("Profile", FontAwesomeIcons.Solid.User),
+        NavItem("Settings", FontAwesomeIcons.Solid.Cog)
     )
 
     var selectedIndex by remember { mutableStateOf(0) }
@@ -148,7 +154,7 @@ fun FloatingBottomBar(
                             WTCBlue
                         else
                             WTCOnGrey,
-                        modifier = Modifier.size(34.dp)
+                        modifier = if(item.icon == FontAwesomeIcons.Solid.Home) Modifier.size(34.dp) else Modifier.size(28.dp)
                     )
                 }
             }

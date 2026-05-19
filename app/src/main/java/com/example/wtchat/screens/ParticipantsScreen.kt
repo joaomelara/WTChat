@@ -46,6 +46,9 @@ import com.example.wtchat.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.User
 
 @Composable
 fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewModel, chatId: String){
@@ -132,7 +135,7 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                                 .size(50.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(imageVector = Icons.Rounded.Person, contentDescription = "User Icon", modifier =  Modifier.size(30.dp), tint = WTCBackground)
+                            Icon(imageVector = FontAwesomeIcons.Solid.User, contentDescription = "User Icon", modifier =  Modifier.size(21.dp), tint = WTCBackground)
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))

@@ -48,6 +48,9 @@ import com.example.wtchat.ui.theme.WTCGrey
 import com.example.wtchat.utils.TokenManager
 import com.example.wtchat.viewmodels.AuthState
 import com.example.wtchat.viewmodels.AuthViewModel
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Solid
+import compose.icons.fontawesomeicons.solid.User
 import kotlinx.coroutines.runBlocking
 import okhttp3.internal.wait
 
@@ -203,7 +206,7 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                 .size(65.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(imageVector = Icons.Rounded.Person, contentDescription = "Chat Icon", modifier =  Modifier.size(40.dp), tint = WTCBackground)
+                            Icon(imageVector = FontAwesomeIcons.Solid.User, contentDescription = "Chat Icon", modifier =  Modifier.size(28.dp), tint = WTCBackground)
                         }
 
                         Spacer(modifier = Modifier.size(20.dp))

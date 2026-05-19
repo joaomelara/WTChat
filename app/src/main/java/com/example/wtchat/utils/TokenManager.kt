@@ -56,9 +56,7 @@ class TokenManager(context: Context) {
     }
 
     fun clearToken() {
-        sharedPreferences.edit().apply {
-            remove("access_token")
-            remove("user_model")
+        sharedPreferences.edit().clear().apply{
             apply()
         }
     }
