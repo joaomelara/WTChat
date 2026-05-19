@@ -147,7 +147,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, user
                 ) {
                     Text(
                         style = MaterialTheme.typography.titleMedium,
-                        text = "CRM:"
+                        text = "Código CRM:"
                     )
                     Text(
                         style = MaterialTheme.typography.titleMedium,
@@ -183,7 +183,7 @@ fun ProfilePage(navController: NavController ,authViewModel: AuthViewModel, user
                         )
                         Text(
                             style = MaterialTheme.typography.titleMedium,
-                            text = "Operador"
+                            text = "Operador(a)"
                         )
                     }
                 }

@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -216,14 +217,11 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                 style = MaterialTheme.typography.titleMedium,
                                 text = item.name
                             )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
+                            Spacer(modifier = Modifier.height(5.dp))
                                 if(!item.roles.contains("ROLE_ADMIN")) {
                                     Text(
                                         style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.Medium,
                                         text = when (item.segment.replace("SEGMENT_", "")) {
                                             "RETAIL" -> "Varejo"
                                             "EDUCATION" -> "Educação"
@@ -236,14 +234,19 @@ fun UsersScreen(navController: NavController, authViewModel: AuthViewModel){
                                 } else {
                                     Text(
                                         style = MaterialTheme.typography.bodySmall,
-                                        text = "Operador"
+                                        fontWeight = FontWeight.Medium,
+                                        text = "Operador(a)"
                                     )
                                 }
                                 Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.End,
                                     style = MaterialTheme.typography.bodySmall,
-                                    text = "CRM: "+ item.username
+                                    fontWeight = FontWeight.Bold,
+                                    text = "Cód. CRM: " + item.username,
+                                    color = Color.Gray
                                 )
-                            }
+
                         }
                     }
                 }

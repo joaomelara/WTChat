@@ -77,7 +77,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
                 println("Login error: ${e.message}")
-                _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
+                _authState.value = AuthState.Error(when(e.message?.replace("HTTP ", "")
+                    ?.replace(" ","")) {
+                    "400" -> "Email inválido"
+                    "401" -> "Email ou senha errados"
+                    else -> "Algo deu errado, tente novamente."
+                })
             }
         }
     }
@@ -86,6 +91,12 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
         if(email.isEmpty() || senha.isEmpty() || username.isEmpty() || name.isEmpty() || segment.isEmpty()){
             _authState.value = AuthState.Error("Por favor, preencha todos os campos.")
+            return
+        } else if(username.length < 3){
+            _authState.value = AuthState.Error("O Código CRM tem no mínimo 3 caracteres.")
+            return
+        } else if(senha.length < 6){
+            _authState.value = AuthState.Error("A senha tem no mínimo 6 caracteres.")
             return
         }
 
@@ -110,10 +121,18 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _authToken.value = response.accessToken
                 _authState.value = AuthState.Authenticated
             } catch (e: Exception) {
-                println("Signup error: ${e.message}")
-                _authState.value = AuthState.Error(e.message ?: "Algo deu errado, tente novamente.")
+                println("SingUp error: ${e.message}")
+                _authState.value = AuthState.Error(when(e.message?.replace("HTTP ", "")
+                    ?.replace(" ","")) {
+                    "400" -> "Email inválido ou usuário já existe"
+                    else -> "Algo deu errado, tente novamente."
+                })
             }
         }
+    }
+
+    fun cleanAuthState(){
+        _authState.value = AuthState.Unauthenticated
     }
 
     // Add method to connect WebSocket
@@ -127,16 +146,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     // Add method to send message via WebSocket
     fun sendMessageWebSocket(message: MessageModel) {
         webSocketManager.sendMessage(message)
-    }
-
-    fun sendMessage( message: MessageModel){
-        viewModelScope.launch {
-                try {
-                    RetrofitInstance.getInstance().messagesService.sendMessage(message)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-        }
     }
 
     fun signout(){

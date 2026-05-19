@@ -149,9 +149,11 @@ fun ParticipantsScreen(navController: NavController ,authViewModel: AuthViewMode
                                 text = item.name + if(userId == item.id) " (Você)" else ""
                             )
                             if(item.roles.contains("ROLE_ADMIN")) {
+                                Spacer(modifier = Modifier.height(5.dp))
                                 Text(
                                     style = MaterialTheme.typography.bodySmall,
-                                    text = "Operador"
+                                    fontWeight = FontWeight.Medium,
+                                    text = "Operador(a)"
                                 )
                             }
                         }

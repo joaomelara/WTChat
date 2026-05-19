@@ -216,6 +216,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel){
 
             TextButton(
                 onClick = {
+                    authViewModel.cleanAuthState()
                     navController.navigate(Routes.SignUpScreen)
                 },
                 modifier = Modifier.fillMaxWidth(),

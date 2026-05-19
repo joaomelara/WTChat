@@ -168,11 +168,13 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
                 shape = RoundedCornerShape(20.dp),
                 value = crm.value,
                 onValueChange = { novoValor ->
-                    crm.value = novoValor
+                    if(novoValor.length <= 11){
+                        crm.value = novoValor
+                    }
                     errorMessage.value = "" // Clear error message on input change
                 },
                 placeholder = {
-                    Text(text = "Seu CRM")
+                    Text(text = "Seu código CRM")
                 },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
@@ -361,6 +363,7 @@ fun SignUpScreen(navController: NavController, authViewModel: AuthViewModel){
 
             TextButton(
                 onClick = {
+                    authViewModel.cleanAuthState()
                     navController.navigate(Routes.LoginScreen)
                 },
                 modifier = Modifier.fillMaxWidth(),

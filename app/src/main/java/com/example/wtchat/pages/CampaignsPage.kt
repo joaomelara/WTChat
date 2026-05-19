@@ -180,7 +180,7 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                         Text(
                             text = "Nenhuma campanha disponível",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = WTCGrey
+                            color = WTCBlue
                         )
                     }
                 }
