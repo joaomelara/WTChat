@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -189,7 +190,6 @@ fun CampaignsPage(navController: NavController, authViewModel: AuthViewModel) {
                         ) { campaign ->
                             CampaignCard(
                                 campaign = campaign,
-                                // Apenas o criador da campanha pode editar/deletar
                                 canEdit = campaign.createdBy?.trim()
                                     ?.equals(currentUsername?.trim(), ignoreCase = true) == true,
                                 onEditClick = {
@@ -226,6 +226,10 @@ fun CampaignCard(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    var subtitleOverflows by remember { mutableStateOf(false) }
+    var descriptionOverflows by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
@@ -254,7 +258,12 @@ fun CampaignCard(
                     Text(
                         text = campaign.subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        maxLines = if (expanded) Int.MAX_VALUE else 1,
+                        overflow = TextOverflow.Ellipsis,
+                        onTextLayout = { result ->
+                            if (!expanded) subtitleOverflows = result.hasVisualOverflow
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -263,8 +272,26 @@ fun CampaignCard(
                         text = campaign.description,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Gray,
-                        maxLines = 2
+                        maxLines = if (expanded) Int.MAX_VALUE else 2,
+                        overflow = TextOverflow.Ellipsis,
+                        onTextLayout = { result ->
+                            if (!expanded) descriptionOverflows = result.hasVisualOverflow
+                        }
                     )
+
+                    if (subtitleOverflows || descriptionOverflows || expanded) {
+                        TextButton(
+                            onClick = { expanded = !expanded },
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier.height(24.dp)
+                        ) {
+                            Text(
+                                text = if (expanded) "Ver menos ▲" else "Ver mais ▼",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = WTCBlue
+                            )
+                        }
+                    }
                 }
 
                 if (canEdit) {
