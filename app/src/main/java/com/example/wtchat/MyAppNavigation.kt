@@ -11,6 +11,7 @@ import com.example.wtchat.screens.LoadingScreen
 import com.example.wtchat.screens.LoginScreen
 import com.example.wtchat.screens.ParticipantsScreen
 import com.example.wtchat.screens.SignUpScreen
+import com.example.wtchat.screens.UsersScreen
 import com.example.wtchat.viewmodels.AuthViewModel
 
 @Composable
@@ -32,6 +33,10 @@ fun MyAppNavigation(authViewModel: AuthViewModel){
         //some data passing tests
         composable(Routes.ConversationHubScreen){
             NavScreen(navController, authViewModel)
+        }
+
+        composable(Routes.UsersScreen) {
+            UsersScreen(navController, authViewModel)
         }
 
         composable(Routes.ConversationScreen + "/{chatId}/{chatNome}") {

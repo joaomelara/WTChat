@@ -2,6 +2,7 @@ package com.example.wtchat.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,10 +52,6 @@ import com.example.wtchat.utils.TokenManager
 
 @Composable
 fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
-
-    var pesquisa = remember {
-        mutableStateOf("")
-    }
 
     var conversas = remember {
         mutableStateOf<List<ChatModel>>(emptyList())
@@ -130,29 +128,40 @@ fun HubPage(navController: NavController ,authViewModel: AuthViewModel){
                 color = WTCBlue
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(45.dp))
 
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                value = pesquisa.value,
-                onValueChange = { novoValor ->
-                    pesquisa.value = novoValor
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email
-                ),
-                placeholder = {
-                    Text(text = "Pesquisar")
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent, // Remove bottom border when focused
-                    unfocusedIndicatorColor = Color.Transparent, // Remove bottom border when unfocused
-                    unfocusedContainerColor = WTCGrey,
-                    focusedContainerColor = WTCGrey
-                ),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(WTCBlue, RoundedCornerShape(200.dp))
+                    .clickable(onClick = {
+                        navController.navigate(Routes.UsersScreen)
+                    })
+                    .padding( 20.dp, 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
 
+                ) {
+                Text(
+                    style = MaterialTheme.typography.titleMedium,
+                    color = WTCGrey,
+                    text = "Iniciar nova conversa"
                 )
+
+
+                Box(
+                    modifier = Modifier.background(WTCBlue, RoundedCornerShape(200.dp))
+                        .size(45.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = "Add Icon",
+                        modifier = Modifier.size(40.dp),
+                        tint = WTCBackground
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(15.dp))
 
