@@ -8,5 +8,7 @@ object Routes {
     var ConversationScreen = "Conversation_Screen"
     var ParticipantsScreen = "Participants_Screen"
     var ProfilePage = "Profile_Page"
+    var EditCampaignScreen = "Edit_Campaign_Screen"
+    var CreateCampaignScreen = "Create_Campaign_Screen"
     var UsersScreen = "Users_Screen"
 }
